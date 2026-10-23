@@ -7,6 +7,13 @@ Free and open source. No account, no telemetry, works offline.</p>
 
 <p align="center"><a href="#install">Install</a> · <a href="#features">Features</a> · <a href="#privacy">Privacy</a> · <a href="#по-русски">По-русски</a></p>
 
+<p align="center"><img src="docs/screenshots/history.png" width="560" alt="Clippo history"></p>
+
+<p align="center">
+  <img src="docs/screenshots/queue.png" width="260" alt="Paste Queue">
+  <img src="docs/screenshots/list.png" width="260" alt="Snippet lists">
+</p>
+
 ---
 
 ## Features

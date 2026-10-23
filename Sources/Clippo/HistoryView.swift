@@ -112,8 +112,8 @@ struct HistoryView: View {
                 .font(.system(size: 12, weight: on ? .semibold : .regular))
                 .padding(.horizontal, 10)
                 .padding(.vertical, 4)
-                .foregroundStyle(on ? Color.accentColor : Color.primary)
-                .background(Capsule().fill(on ? Color.accentColor.opacity(0.18) : Color.primary.opacity(0.06)))
+                .foregroundStyle(on ? Color.white : Color.primary)
+                .background(Capsule().fill(on ? Color.accentColor : Color.primary.opacity(0.06)))
         }
         .buttonStyle(.plain)
     }

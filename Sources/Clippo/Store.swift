@@ -29,6 +29,7 @@ final class Store: ObservableObject {
 
     let fileURL: URL
     static let directory: URL = {
+        if Demo.isOn { return Demo.directory }
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
         let dir = base.appendingPathComponent("Clippo", isDirectory: true)
         // The app used to be called Clipo; carry its data over once.
@@ -55,6 +56,15 @@ final class Store: ObservableObject {
             let stamp = ISO8601DateFormatter().string(from: Date()).replacingOccurrences(of: ":", with: "-")
             try? FileManager.default.moveItem(at: fileURL, to: dir.appendingPathComponent("store.unreadable-\(stamp).json"))
         }
+    }
+
+    /// Sample content for screenshot mode (see Demo).
+    func seedDemo(image: Data?) {
+        history = Demo.history.map { Clip(text: $0.0, date: Date().addingTimeInterval(-$0.1)) }
+        if let image, let name = ImageStore.save(image) {
+            history.insert(Clip(text: "", date: Date().addingTimeInterval(-120), image: name), at: 1)
+        }
+        lists = Demo.lists.map { ClipList(name: $0.0, items: $0.1.map { Clip(text: $0) }) }
     }
 
     func clearHistory() {

@@ -19,6 +19,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var awaitingSplit = false
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        if Demo.isOn { startDemo(); return }
         if AppMover.offerMoveIfNeeded() { return }
         buildPanels()
 
@@ -47,6 +48,29 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     private var keyMonitor: Any?
+
+    private func startDemo() {
+        buildPanels()
+        let icon = NSApp.applicationIconImage.tiffRepresentation.flatMap(NSBitmapImageRep.init(data:))?
+            .representation(using: .png, properties: [:])
+        store.seedDemo(image: icon)
+        queue.activate()
+        queue.push(Demo.queue)
+        _ = queue.popNext(); _ = queue.popNext()
+        setupStatusItem()
+        NSApp.activate()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { self.showDemoPanel() }
+    }
+
+    private func showDemoPanel() {
+        switch Demo.panel {
+        case "list": toggleList()
+        case "queue": queuePanel.present()
+        case "settings": openSettings()
+        case "onboarding": showOnboarding()
+        default: toggleHistory()
+        }
+    }
     private var settingsWindow: NSWindow?
 
     private func registerShortcuts() {
@@ -401,6 +425,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
 }
 
+Demo.prepare()
 let app = NSApplication.shared
 let delegate = AppDelegate()
 app.delegate = delegate

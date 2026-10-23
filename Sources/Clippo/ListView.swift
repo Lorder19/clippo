@@ -4,7 +4,7 @@ final class ListModel: ObservableObject {
     enum Draft: Equatable { case none, add, edit(UUID) }
 
     @Published var listID: UUID? {
-        didSet { UserDefaults.standard.set(listID?.uuidString, forKey: "lastListID") }
+        didSet { if !Demo.isOn { UserDefaults.standard.set(listID?.uuidString, forKey: "lastListID") } }
     }
     @Published var selection = 0
     @Published var draft: Draft = .none

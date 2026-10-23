@@ -27,7 +27,7 @@ final class FloatingPanel: NSPanel {
         isReleasedWhenClosed = false
         animationBehavior = .utilityWindow
         // Clipboard contents must not leak into screen recordings, screenshots or Zoom/Meet shares.
-        sharingType = .none
+        sharingType = Demo.isOn ? .readOnly : .none
         self.minSize = minSize
         for b in [NSWindow.ButtonType.closeButton, .miniaturizeButton, .zoomButton] {
             standardWindowButton(b)?.isHidden = true
@@ -51,7 +51,7 @@ final class FloatingPanel: NSPanel {
         contentView = effect
 
         hasFrame = setFrameUsingName(name)
-        setFrameAutosaveName(name)
+        if !Demo.isOn { setFrameAutosaveName(name) } // screenshot mode must not move your saved windows
     }
 
     required init?(coder: NSCoder) { fatalError("not used") }
@@ -67,7 +67,7 @@ final class FloatingPanel: NSPanel {
 
     override func resignKey() {
         super.resignKey()
-        if closesOnResign { orderOut(nil) }
+        if closesOnResign && !Demo.isOn { orderOut(nil) } // demo panels stay put for screenshots
     }
 
     func present() {

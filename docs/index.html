@@ -42,6 +42,7 @@
   ol { padding-left: 22px; } ol li { margin: 8px 0; }
   footer { padding: 40px 0 60px; text-align: center; color: var(--muted); font-size: 14px; }
   footer a { color: inherit; }
+  .shot { display: block; width: min(100%, 620px); height: auto; margin: 36px auto 0; }
   .mock { max-width: 560px; margin: 40px auto 0; background: var(--card); border: 1px solid var(--line); border-radius: 14px;
           box-shadow: 0 24px 60px rgba(20,18,23,.18); text-align: left; overflow: hidden; }
   .mock .bar { display: flex; align-items: center; gap: 8px; padding: 12px 14px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 14px; }
@@ -77,12 +78,7 @@
       <a class="btn ghost" data-repo="" href="#">Source on GitHub</a>
     </div>
     <p class="small">macOS 14+ · Apple Silicon &amp; Intel · ~2 MB · no account</p>
-    <div class="mock" aria-hidden="true">
-      <div class="bar">⌕ Search clipboard</div>
-      <div class="row on"><span class="n">1</span><div>Invoice #2048 — due Friday<div class="sub">just now</div></div></div>
-      <div class="row"><span class="n">2</span><span class="thumb"></span><div>Image 1440×900<div class="sub">2 min ago</div></div></div>
-      <div class="row"><span class="n">3</span><div>git commit -m "Release 1.0"<div class="sub">5 min ago</div></div></div>
-      <div class="row"><span class="n">4</span><div>Best regards, Alex<div class="sub">3 lines · yesterday</div></div></div>
+    <img class="shot" src="screenshots/history.png" alt="Clippo clipboard history window">
     </div>
   </header>
 
