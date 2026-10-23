@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clippo，Mac 剪贴板历史工具</title>
+<meta name="description" content="免费开源的 macOS 剪贴板管理工具。剪贴板历史、常用短语列表和粘贴队列。不保存密码，历史加密存储，无需账号。">
+<link rel="alternate" hreflang="en" href="https://lorder19.github.io/clippo/">
+<link rel="alternate" hreflang="ru" href="https://lorder19.github.io/clippo/ru/">
+<link rel="alternate" hreflang="zh-Hans" href="https://lorder19.github.io/clippo/zh/">
+<link rel="alternate" hreflang="x-default" href="https://lorder19.github.io/clippo/">
+<link rel="icon" href="../icon.png">
+<meta property="og:title" content="Clippo">
+<meta property="og:description" content="Mac 剪贴板历史工具。小巧、免费、开源。">
+<meta property="og:image" content="https://lorder19.github.io/clippo/social.png">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+  :root {
+    --paper: #f3efe8; --ink: #1b1918; --soft: #6d6660; --line: #d9d2c7; --card: #fbf9f5;
+    --red: #c8232f; --red-ink: #8f141d; --key: #e8e2d8; --hl: #fde7e3;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --paper: #131211; --ink: #ece7df; --soft: #9a938a; --line: #2c2926; --card: #1b1917; --key: #2a2724; --hl: #3a1d1e; }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--paper); color: var(--ink);
+         font: 17px/1.6 -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif; }
+  a { color: var(--red); }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 20px; }
+  kbd { font: 600 0.82em/1 ui-monospace, "SF Mono", Menlo, monospace; background: var(--key); border-radius: 5px;
+        padding: 3px 6px; white-space: nowrap; }
+
+  header { padding: 56px 0 8px; display: grid; grid-template-columns: auto 1fr; gap: 22px; align-items: center; }
+  header img { width: 88px; height: 88px; }
+  h1 { font-size: 44px; line-height: 1; margin: 0 0 6px; letter-spacing: -0.02em; }
+  .lede { margin: 0; color: var(--soft); font-size: 19px; }
+  .get { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; margin: 26px 0 0; }
+  .btn { background: var(--red); color: #fff; text-decoration: none; padding: 12px 20px; border-radius: 10px; font-weight: 600; }
+  .btn:hover { background: var(--red-ink); }
+  code { font: 0.9em ui-monospace, "SF Mono", Menlo, monospace; background: var(--key); padding: 2px 6px; border-radius: 5px; }
+  .meta { color: var(--soft); font-size: 14px; }
+
+  .note { margin: 40px 0 0; max-width: 640px; }
+  .demo { display: block; width: 100%; max-width: 800px; height: auto; margin: 36px 0 0; border-radius: 12px; }
+
+  /* playground */
+  .play { margin: 44px 0 0; border: 1px solid var(--line); border-radius: 14px; background: var(--card); overflow: hidden; }
+  .play-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 14px 18px;
+               border-bottom: 1px solid var(--line); font-size: 15px; }
+  .play-head b { font-weight: 600; }
+  .play-head span { color: var(--soft); }
+  .play-body { display: grid; grid-template-columns: 1fr 1fr; }
+  .col { padding: 16px 18px; }
+  .col + .col { border-left: 1px solid var(--line); }
+  .col h3 { margin: 0 0 10px; font-size: 13px; font-weight: 600; color: var(--soft); text-transform: uppercase; letter-spacing: .06em; }
+  .src { list-style: none; margin: 0; padding: 0; }
+  .src li { padding: 7px 10px; margin: 0 -10px; border-radius: 7px; cursor: pointer; font-size: 15px; }
+  .src li:hover { background: var(--hl); }
+  .src li.copied { animation: flash .5s; }
+  @keyframes flash { from { background: var(--red); color: #fff; } }
+  textarea { width: 100%; min-height: 150px; resize: vertical; border: 1px solid var(--line); border-radius: 8px;
+             background: var(--paper); color: var(--ink); font: 15px/1.5 inherit; font-family: inherit; padding: 10px; }
+  textarea:focus { outline: 2px solid var(--red); outline-offset: -1px; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .row button { font: inherit; font-size: 14px; border: 1px solid var(--line); background: var(--paper); color: var(--ink);
+                padding: 6px 11px; border-radius: 8px; cursor: pointer; }
+  .row button[aria-pressed="true"] { background: var(--red); border-color: var(--red); color: #fff; }
+
+  .panel { position: absolute; left: 50%; top: 18px; transform: translateX(-50%); width: min(420px, calc(100% - 24px));
+           background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 20px 50px rgba(0,0,0,.25);
+           display: none; z-index: 3; }
+  .panel.open { display: block; }
+  .panel input { width: 100%; border: 0; border-bottom: 1px solid var(--line); background: transparent; color: var(--ink);
+                 font: inherit; padding: 12px 14px; outline: none; }
+  .panel ol { list-style: none; margin: 0; padding: 6px; max-height: 260px; overflow: auto; }
+  .panel li { display: flex; gap: 10px; align-items: center; padding: 7px 8px; border-radius: 7px; cursor: pointer; font-size: 15px; }
+  .panel li.sel { background: var(--hl); }
+  .panel li i { font-style: normal; font: 600 12px ui-monospace, Menlo, monospace; width: 20px; height: 20px; border-radius: 5px;
+                display: grid; place-items: center; background: var(--key); flex: none; }
+  .panel li.sel i { background: var(--red); color: #fff; }
+  .panel .empty { padding: 14px; color: var(--soft); font-size: 15px; }
+  .stage { position: relative; }
+  .queue { margin: 12px 0 0; padding: 0; list-style: none; font-size: 14px; }
+  .queue li { padding: 3px 0; color: var(--ink); }
+  .queue li.used { color: var(--soft); text-decoration: line-through; }
+  .queue li.next::before { content: "→ "; color: var(--red); }
+  .hint { color: var(--soft); font-size: 13px; margin: 8px 0 0; }
+
+  section { margin: 64px 0 0; }
+  h2 { font-size: 26px; letter-spacing: -0.01em; margin: 0 0 14px; }
+  ul.plain { padding-left: 20px; margin: 0; }
+  ul.plain li { margin: 8px 0; }
+  .shots { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-start; margin-top: 18px; }
+  .shots img { max-width: 100%; height: auto; }
+  ol.steps li { margin: 8px 0; }
+  details { border-top: 1px solid var(--line); padding: 12px 0; }
+  details:last-of-type { border-bottom: 1px solid var(--line); }
+  summary { cursor: pointer; font-weight: 600; }
+  details p { color: var(--soft); margin: 8px 0 0; }
+  footer { margin: 72px 0 0; padding: 22px 0 48px; border-top: 1px solid var(--line); color: var(--soft); font-size: 15px; }
+
+  @media (max-width: 640px) {
+    header { grid-template-columns: 1fr; }
+    h1 { font-size: 36px; }
+    .play-body { grid-template-columns: 1fr; }
+    .col + .col { border-left: 0; border-top: 1px solid var(--line); }
+  }
+  .langs { position: absolute; top: 18px; right: 20px; font-size: 14px; color: var(--soft); }
+  .langs a { color: var(--soft); text-decoration: none; margin-left: 10px; }
+  .langs a[aria-current] { color: var(--ink); font-weight: 600; }
+  .wrap { position: relative; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="langs"><a href="../">English</a><a href="../ru/">Русский</a><a href="../zh/" aria-current="page">中文</a></nav>
+  <header>
+    <img src="../icon.png" alt="Clippo icon">
+    <div>
+      <h1>Clippo</h1>
+      <p class="lede">Mac 剪贴板历史工具。小巧、免费、开源。</p>
+    </div>
+  </header>
+  <div class="get">
+    <a class="btn" href="https://github.com/Lorder19/clippo/releases/latest">下载 macOS 版</a>
+    <span class="meta">macOS 14+，支持 Apple Silicon 和 Intel，约 2 MB</span>
+    <a href="https://github.com/Lorder19/clippo">GitHub 源码</a>
+  </div>
+
+  <p class="note">我用了好几年 CleanClip，直到一次 macOS 更新后它开始崩溃。试过的其他工具要么要订阅，要么功能多到用不过来。Clippo 记住你复制的内容，按几个键就能粘贴回去，其余时间不打扰你。</p>
+
+  <img class="demo" src="../demo.gif" width="800" alt="Clippo：历史、搜索和粘贴队列">
+
+  <div class="play" id="play">
+    <div class="play-head"><b>在这里试试</b><span>点击一行复制，然后在右侧输入框按 <kbd id="k-hist">⌘;</kbd></span></div>
+    <div class="play-body">
+      <div class="col">
+        <h3>可复制的内容</h3>
+        <ul class="src" id="src">
+          <li>2048 号发票周五前付款</li>
+          <li>上海市黄浦区南京东路 100 号</li>
+          <li>git commit -m "fix login redirect"</li>
+          <li>收到，谢谢！明天回复你。</li>
+          <li>#c8232f</li>
+          <li>会议改到 15:30，链接不变</li>
+        </ul>
+      </div>
+      <div class="col stage">
+        <h3>你的文档</h3>
+        <div class="panel" id="panel" role="dialog" aria-label="剪贴板历史">
+          <input id="q" placeholder="搜索剪贴板" autocomplete="off">
+          <ol id="hist"></ol>
+        </div>
+        <textarea id="doc" placeholder="点击这里，然后按 ⌘;（Windows 上按 Ctrl+;）打开历史"></textarea>
+        <div class="row">
+          <button id="b-hist">打开历史</button>
+          <button id="b-queue" aria-pressed="false">粘贴队列</button>
+          <button id="b-clear">清空</button>
+        </div>
+        <ol class="queue" id="queue"></ol>
+        <p class="hint" id="hint">开启粘贴队列，复制几行，然后在这里一次次按 ⌘V。</p>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <h2>三个快捷键</h2>
+    <p><kbd>⌘;</kbd> 打开历史：文字和图片，最新的在前，可搜索。<kbd>⌘1</kbd> 到 <kbd>⌘9</kbd> 直接粘贴前九条，不用碰鼠标。</p>
+    <p><kbd>⌘I</kbd> 打开常用内容列表，比如回复模板和地址。按数字粘贴对应一行。</p>
+    <p><kbd>⌘'</kbd> 开启粘贴队列。连续复制几条，每按一次 <kbd>⌘V</kbd> 粘贴下一条。<kbd>⇧⌘C</kbd> 把选中的一列按行拆开，适合把表格里的一列填进网页表单。</p>
+    <div class="shots">
+      <img src="../screenshots/history.png" width="560" alt="Clippo 历史窗口">
+      <img src="../screenshots/queue.png" width="260" alt="粘贴队列窗口">
+    </div>
+  </section>
+
+  <section>
+    <h2>你的数据只属于你</h2>
+    <ul class="plain">
+      <li>从密码管理器（1Password、Bitwarden、Apple 密码等会标记为机密的应用）复制的密码永远不会被保存。</li>
+      <li>你可以选择忽略哪些应用。“钥匙串访问”和“密码”默认就在列表里。</li>
+      <li>历史和图片在磁盘上加密存储。说实话：密钥就放在旁边，你的账户可以读取，所以它防的是文件泄露，而不是坐在你 Mac 前的人。</li>
+      <li>Clippo 的窗口被标记为私密：macOS 截图会跳过它们，在 Telegram 共享屏幕时也看不到。少数录屏工具会忽略这个标记，介意的话请自己确认一下。</li>
+      <li>没有账号，没有统计。唯一的网络请求是检查更新，默认关闭。</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>安装</h2>
+    <p>用 Homebrew：<code>brew install --cask lorder19/tap/clippo</code>。或者手动安装：</p>
+    <ol class="steps">
+      <li>下载 <b>Clippo.zip</b>，解压后把 Clippo 拖进“应用程序”。</li>
+      <li>打开它。macOS 会提示开发者身份不明，因为我还没付钱给 Apple 买证书。打开“系统设置 → 隐私与安全性”，点击<b>“仍要打开”</b>。</li>
+      <li>按提示允许“辅助功能”权限。Clippo 只用它来替你按 ⌘V。</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>常见问题</h2>
+    <details><summary>为什么不直接用 macOS Tahoe 自带的剪贴板历史？</summary>
+      <p>它适合找回复制过的东西。Clippo 则是为粘贴设计的：编号条目、常用列表和粘贴队列，全部用键盘操作。</p></details>
+    <details><summary>快捷键有时没反应</summary>
+      <p>当密码输入框处于焦点时，macOS 会开启安全输入，阻止所有应用的全局快捷键。有些密码管理器忘了关闭它。切换应用或重启密码管理器即可解决。出现这种情况时 Clippo 会在菜单里提示。</p></details>
+    <details><summary>在菜单栏找不到图标</summary>
+      <p>在带刘海的 MacBook 上，多余的图标会被挡住。快捷键照常可用，从聚焦搜索再次打开 Clippo 会弹出设置。</p></details>
+    <details><summary>怎么卸载？</summary>
+      <p>退出 Clippo，删除应用，再删除 ~/Library/Application Support/Clippo 文件夹。</p></details>
+    <details><summary>会一直免费吗？</summary>
+      <p>是的，这里介绍的功能会一直免费。以后可能会推出付费版，加入保留格式粘贴等功能，用来支付 Apple 开发者账号的费用。</p></details>
+  </section>
+
+  <footer>
+    Clippo 采用 MIT 许可证。发现问题或想要新功能？<a href="https://github.com/Lorder19/clippo/issues">在 GitHub 上提出</a>。
+  </footer>
+</div>
+
+<script>
+(() => {
+  const mac = /Mac|iPhone|iPad/.test(navigator.platform);
+  if (!mac) {
+    document.getElementById('k-hist').textContent = 'Ctrl+;';
+    document.getElementById('hint').textContent = '开启粘贴队列，复制几行，然后在这里一次次按 Ctrl+V。';
+  }
+  const doc = document.getElementById('doc'), panel = document.getElementById('panel'), q = document.getElementById('q');
+  const histEl = document.getElementById('hist'), queueEl = document.getElementById('queue'), qBtn = document.getElementById('b-queue');
+  let history = [], queue = [], cursor = 0, sel = 0, queueOn = false;
+
+  function copy(text, el) {
+    history = [text, ...history.filter(t => t !== text)].slice(0, 30);
+    if (queueOn) queue.push(text);
+    navigator.clipboard?.writeText(text).catch(() => {});
+    if (el) { el.classList.remove('copied'); void el.offsetWidth; el.classList.add('copied'); }
+    renderQueue();
+  }
+  function filtered() {
+    const s = q.value.trim().toLowerCase();
+    return s ? history.filter(t => t.toLowerCase().includes(s)) : history;
+  }
+  function renderHist() {
+    const items = filtered();
+    sel = Math.min(sel, Math.max(items.length - 1, 0));
+    histEl.innerHTML = '';
+    if (!items.length) {
+      histEl.innerHTML = '<li class="empty">' + (history.length ? '没有找到' : '先在左边复制点东西') + '</li>';
+      return;
+    }
+    items.forEach((t, i) => {
+      const li = document.createElement('li');
+      if (i === sel) li.className = 'sel';
+      const n = document.createElement('i'); n.textContent = i < 9 ? i + 1 : '';
+      li.append(n, document.createTextNode(t));
+      li.onclick = () => pick(t);
+      histEl.append(li);
+    });
+  }
+  function renderQueue() {
+    queueEl.innerHTML = '';
+    if (!queueOn) return;
+    queue.forEach((t, i) => {
+      const li = document.createElement('li');
+      li.textContent = t;
+      li.className = i < cursor ? 'used' : i === cursor ? 'next' : '';
+      queueEl.append(li);
+    });
+  }
+  function insert(text) {
+    const a = doc.selectionStart, b = doc.selectionEnd;
+    doc.value = doc.value.slice(0, a) + text + doc.value.slice(b);
+    doc.selectionStart = doc.selectionEnd = a + text.length;
+  }
+  function openPanel() { q.value = ''; sel = 0; renderHist(); panel.classList.add('open'); q.focus(); }
+  function closePanel() { panel.classList.remove('open'); doc.focus(); }
+  function pick(t) { closePanel(); insert(t + '\n'); copy(t); }
+
+  document.querySelectorAll('#src li').forEach(li => li.onclick = () => copy(li.textContent, li));
+  document.getElementById('b-hist').onclick = openPanel;
+  document.getElementById('b-clear').onclick = () => { doc.value = ''; queue = []; cursor = 0; renderQueue(); };
+  qBtn.onclick = () => { queueOn = !queueOn; qBtn.setAttribute('aria-pressed', queueOn); queue = []; cursor = 0; renderQueue(); };
+
+  const isMod = e => mac ? e.metaKey : e.ctrlKey;
+  doc.addEventListener('keydown', e => {
+    if (isMod(e) && e.key === ';') { e.preventDefault(); openPanel(); }
+    if (isMod(e) && e.key.toLowerCase() === 'v' && queueOn && queue.length) {
+      e.preventDefault();
+      if (cursor >= queue.length) cursor = 0;
+      insert(queue[cursor] + '\n'); cursor++; renderQueue();
+    }
+  });
+  q.addEventListener('input', () => { sel = 0; renderHist(); });
+  q.addEventListener('keydown', e => {
+    const items = filtered();
+    if (e.key === 'Escape') { e.preventDefault(); closePanel(); }
+    else if (e.key === 'ArrowDown') { e.preventDefault(); sel = Math.min(sel + 1, items.length - 1); renderHist(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); sel = Math.max(sel - 1, 0); renderHist(); }
+    else if (e.key === 'Enter' && items[sel]) { e.preventDefault(); pick(items[sel]); }
+    else if (isMod(e) && /^[1-9]$/.test(e.key) && items[+e.key - 1]) { e.preventDefault(); pick(items[+e.key - 1]); }
+  });
+  document.addEventListener('click', e => { if (panel.classList.contains('open') && !panel.contains(e.target) && e.target.id !== 'b-hist') closePanel(); });
+})();
+</script>
+</body>
+</html>

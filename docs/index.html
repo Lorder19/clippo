@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Clippo, clipboard history for the Mac</title>
 <meta name="description" content="Free, open-source clipboard manager for macOS. History, saved snippets and a paste queue. Skips passwords, encrypted on disk, no account.">
+<link rel="alternate" hreflang="en" href="https://lorder19.github.io/clippo/">
+<link rel="alternate" hreflang="ru" href="https://lorder19.github.io/clippo/ru/">
+<link rel="alternate" hreflang="zh-Hans" href="https://lorder19.github.io/clippo/zh/">
+<link rel="alternate" hreflang="x-default" href="https://lorder19.github.io/clippo/">
 <link rel="icon" href="icon.png">
 <meta property="og:title" content="Clippo">
 <meta property="og:description" content="Clipboard history for the Mac. Small, free, open source.">
@@ -102,10 +106,15 @@
     .play-body { grid-template-columns: 1fr; }
     .col + .col { border-left: 0; border-top: 1px solid var(--line); }
   }
+  .langs { position: absolute; top: 18px; right: 20px; font-size: 14px; color: var(--soft); }
+  .langs a { color: var(--soft); text-decoration: none; margin-left: 10px; }
+  .langs a[aria-current] { color: var(--ink); font-weight: 600; }
+  .wrap { position: relative; }
 </style>
 </head>
 <body>
 <div class="wrap">
+  <nav class="langs"><a href="./" aria-current="page">English</a><a href="ru/">Русский</a><a href="zh/">中文</a></nav>
   <header>
     <img src="icon.png" alt="Clippo icon">
     <div>
@@ -202,7 +211,7 @@
   </section>
 
   <footer>
-    Clippo is MIT licensed. Found a bug or want a feature? <a href="https://github.com/Lorder19/clippo/issues">Open an issue</a>.
+    Switching from <a href="cleanclip-alternative/">CleanClip</a> or <a href="maccy-alternative/">Maccy</a>? Clippo is MIT licensed. Found a bug or want a feature? <a href="https://github.com/Lorder19/clippo/issues">Open an issue</a>.
   </footer>
 </div>
 
