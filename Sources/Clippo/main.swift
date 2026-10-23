@@ -155,6 +155,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             w.isReleasedWhenClosed = false
             w.center()
             onboardingWindow = w
+            // Drop the window on close, so its once-a-second permission check stops too.
+            NotificationCenter.default.addObserver(forName: NSWindow.willCloseNotification, object: w, queue: .main) { [weak self] _ in
+                DispatchQueue.main.async { self?.onboardingWindow = nil }
+            }
         }
         NSApp.activate()
         onboardingWindow?.makeKeyAndOrderFront(nil)

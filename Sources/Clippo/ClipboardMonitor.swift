@@ -7,7 +7,10 @@ final class ClipboardMonitor {
     private var timer: Timer?
 
     func start() {
-        let t = Timer(timeInterval: 0.3, repeats: true) { [weak self] _ in self?.poll() }
+        // macOS has no "clipboard changed" notification, so poll. Half a second feels instant, and the
+        // tolerance lets macOS batch our wakeups with other timers to save energy.
+        let t = Timer(timeInterval: 0.5, repeats: true) { [weak self] _ in self?.poll() }
+        t.tolerance = 0.15
         RunLoop.main.add(t, forMode: .common)
         timer = t
     }
