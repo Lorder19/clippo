@@ -125,7 +125,9 @@ struct ListView: View {
             IconButton(symbol: "pencil", help: L("Изменить")) { begin(.edit(clip.id), text: clip.text) }
         }
         .id(clip.id)
-        .onTapGesture { onPick(clip.text) }
+        // The pencil button sits inside the row: one click fires both. Let the button run first and
+        // skip the paste if it just started editing, otherwise the panel closes under the edit field.
+        .onTapGesture { DispatchQueue.main.async { if model.draft == .none { onPick(clip.text) } } }
         .contextMenu {
             if let listID = list?.id {
                 Button(L("Изменить")) { begin(.edit(clip.id), text: clip.text) }
@@ -167,6 +169,8 @@ struct ListView: View {
         model.draft = draft
         model.draftText = text
         draftFocused = true
+        // A context menu takes focus while it closes; claim it back once it's gone.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { draftFocused = true }
     }
 
     private func commit() {
