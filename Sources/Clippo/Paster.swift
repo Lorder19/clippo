@@ -48,7 +48,8 @@ enum Paster {
     /// Paste into the frontmost app the way it understands.
     static func sendPaste(to target: NSRunningApplication?) {
         if isRemoteDesktop(target) {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { sendKey(9, flags: .maskControl, to: nil) }
+            // The client needs a moment after it comes to the front to push the new clipboard to Windows.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { sendControlChord(9) }
         } else {
             sendCommandV(to: target)
         }
@@ -57,10 +58,30 @@ enum Paster {
     /// Copy the selection in the frontmost app the way it understands.
     static func sendCopy() {
         if isRemoteDesktop(NSWorkspace.shared.frontmostApplication) {
-            sendKey(8, flags: .maskControl, to: nil)
+            sendControlChord(8)
         } else {
             sendCommandC()
         }
+    }
+
+    /// Remote desktop clients forward individual key presses to Windows and track modifiers by their own
+    /// down/up events, not by the flags on the letter. So press Ctrl for real: Ctrl down, key, Ctrl up,
+    /// spaced out a little like a person would.
+    private static func sendControlChord(_ key: CGKeyCode) {
+        let src = CGEventSource(stateID: .privateState)
+        let control: CGKeyCode = 59 // left Control
+        func post(_ code: CGKeyCode, _ down: Bool, _ flags: CGEventFlags) {
+            guard let e = CGEvent(keyboardEventSource: src, virtualKey: code, keyDown: down) else { return }
+            e.flags = flags
+            e.post(tap: .cghidEventTap)
+        }
+        post(control, true, .maskControl)
+        usleep(30_000)
+        post(key, true, .maskControl)
+        usleep(30_000)
+        post(key, false, .maskControl)
+        usleep(30_000)
+        post(control, false, [])
     }
 
     private static func sendCommand(_ key: CGKeyCode, to target: NSRunningApplication?) {

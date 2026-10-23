@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.3 (October 2026)
+
+- Pasting into Windows App and other remote desktop clients works now. Clippo presses Ctrl the way a real keyboard does, so the remote side gets Ctrl+V instead of a plain V.
+
 ## 0.3.2 (October 2026)
 
 - Update from inside the app: Clippo menu > Check for Updates. It downloads the new version, checks it's signed by the same developer, replaces itself and restarts.
