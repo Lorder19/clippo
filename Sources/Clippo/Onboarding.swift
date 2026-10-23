@@ -21,7 +21,7 @@ struct OnboardingView: View {
             }
 
             VStack(alignment: .leading, spacing: 8) {
-                tip(settings.shortcut(.history).label, L("история скопированного — цифры вставляют запись"))
+                tip(settings.shortcut(.history).label, L("история скопированного, цифры вставляют запись"))
                 tip(settings.shortcut(.list).label, L("свои списки фраз для частой вставки"))
                 tip(settings.shortcut(.queue).label, L("Paste Queue: копируйте подряд, ⌘V вставляет по очереди"))
                 Text(L("Значок Clippo живёт в строке меню. Сочетания меняются в настройках."))
@@ -35,7 +35,7 @@ struct OnboardingView: View {
                             .foregroundStyle(granted ? .green : .orange).font(.title3)
                         Text(granted ? L("Универсальный доступ включён") : L("Нужен Универсальный доступ")).font(.headline)
                     }
-                    Text(L("Без него Clippo не может нажать ⌘V за вас — выбранный текст останется только в буфере. Clippo не читает ваш ввод и ничего никуда не отправляет: история хранится только на этом Mac."))
+                    Text(L("Без него Clippo не может нажать ⌘V за вас, и выбранный текст останется только в буфере. Clippo не читает ваш ввод и ничего никуда не отправляет: история хранится только на этом Mac."))
                         .font(.callout).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                     if !granted {
                         Text(L("Откройте настройки и включите переключатель напротив Clippo. Окно само заметит, когда доступ появится."))

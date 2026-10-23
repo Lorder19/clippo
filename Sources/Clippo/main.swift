@@ -51,6 +51,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     private func startDemo() {
         buildPanels()
+        if Demo.panel == "stress" {
+            // Load test: records the real clipboard, but only into the throwaway demo folder.
+            monitor.onCopy = { [weak self] in self?.store.record($0) }
+            monitor.onCopyImage = { [weak self] in self?.store.recordImage($0) }
+            monitor.start()
+            return
+        }
         let icon = NSApp.applicationIconImage.tiffRepresentation.flatMap(NSBitmapImageRep.init(data:))?
             .representation(using: .png, properties: [:])
         store.seedDemo(image: icon)
@@ -92,7 +99,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
     }
 
-    /// Launching Clippo again (Spotlight, /Applications) opens settings — there is no Dock icon to click.
+    /// Launching Clippo again (Spotlight, /Applications) opens settings, since there is no Dock icon to click.
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
         openSettings()
         return false
@@ -233,7 +240,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         NSLog("Clippo split#%d: hotkey, front=%@", token, NSWorkspace.shared.frontmostApplication?.bundleIdentifier ?? "?")
         awaitingSplit = true
         // The hotkey fires on key-down. A synthetic ⌘C sent while the real C (or Shift) is still held is
-        // read as auto-repeat or as ⇧⌘C (Chrome's Inspect) and silently ignored — wait for both to go up.
+        // read as auto-repeat or as ⇧⌘C (Chrome's Inspect) and silently ignored. Wait for both to go up.
         whenKeysReleased { [weak self] in
             guard let self, token == self.splitToken else { return }
             let before = NSPasteboard.general.changeCount
@@ -283,7 +290,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         write()
         monitor.ignoreCurrentChange()
         guard Paster.ensureAccessibility(prompt: false) else {
-            NSLog("Clippo: paste blocked — no Accessibility permission (text left on clipboard)")
+            NSLog("Clippo: paste blocked, no Accessibility permission (text left on clipboard)")
             NSSound.beep()
             DispatchQueue.main.async { self.showOnboarding() }
             return
@@ -380,12 +387,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let s = Settings.shared
         add(menu, L("История"), s.shortcut(.history).label, #selector(menuHistory))
         add(menu, L("Списки"), s.shortcut(.list).label, #selector(menuList))
-        add(menu, queue.isActive ? L("Paste Queue — выключить") : L("Paste Queue — включить"), s.shortcut(.queue).label, #selector(menuQueue))
+        add(menu, queue.isActive ? L("Выключить Paste Queue") : L("Включить Paste Queue"), s.shortcut(.queue).label, #selector(menuQueue))
         menu.addItem(.separator())
         if IsSecureEventInputEnabled() {
             // macOS blocks every app's global shortcuts while a password field (or a buggy app) holds Secure Input.
-            let item = add(menu, L("⚠️ Secure Input включён — сочетания не работают"), nil, #selector(noop))
-            item.toolTip = L("Пока активно поле пароля, macOS блокирует горячие клавиши всех программ. Переключитесь в другую программу; если не помогло — перезапустите менеджер паролей.")
+            let item = add(menu, L("⚠️ Включён Secure Input, сочетания не работают"), nil, #selector(noop))
+            item.toolTip = L("Пока активно поле пароля, macOS блокирует горячие клавиши всех программ. Переключитесь в другую программу; если не помогло, перезапустите менеджер паролей.")
             menu.addItem(.separator())
         }
         if !Paster.ensureAccessibility(prompt: false) {
@@ -393,7 +400,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             menu.addItem(.separator())
         }
         if let update = Updater.shared.available {
-            add(menu, String(format: L("⬇︎ Доступна версия %@ — скачать"), update.version), nil, #selector(openUpdate))
+            add(menu, String(format: L("⬇︎ Скачать версию %@"), update.version), nil, #selector(openUpdate))
             menu.addItem(.separator())
         }
         add(menu, L("Настройки…"), "⌘,", #selector(openSettings))

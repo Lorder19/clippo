@@ -54,7 +54,7 @@ final class PasteQueue: ObservableObject {
         changed()
     }
 
-    /// Waits for pending writes — used on quit, when an async write would be cut off.
+    /// Waits for pending writes. Used on quit, when an async write would be cut off.
     func flush() { ioQueue.sync {} }
 
     func push(_ texts: [String]) {

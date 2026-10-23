@@ -49,7 +49,7 @@ enum ClipText {
         return n > 1 ? "\(lineCount(label: n)) · \(ago)" : ago
     }
 
-    /// L("5 строк") / "5 lines" / "5 行" — Russian needs its three plural forms.
+    /// Russian needs three plural forms (строка/строки/строк), the other languages take one format string.
     static func lineCount(label n: Int) -> String {
         if Bundle.main.preferredLocalizations.first == "ru" { return "\(n) \(plural(n, "строка", "строки", "строк"))" }
         return String(format: L("%d строк"), n)

@@ -143,7 +143,7 @@ struct ListView: View {
                 .font(.system(size: 16))
                 .foregroundStyle(.tint)
                 .padding(.top, 2)
-            TextField(model.draft == .add ? L("Новая строка — ↩ добавить, esc отмена") : L("Текст строки"),
+            TextField(model.draft == .add ? L("Новая строка: ↩ добавить, esc отмена") : L("Текст строки"),
                       text: $model.draftText, axis: .vertical)
                 .textFieldStyle(.plain)
                 .font(.system(size: 13))

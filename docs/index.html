@@ -3,159 +3,286 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Clippo — private clipboard manager for Mac</title>
-<meta name="description" content="Free, open-source clipboard manager for macOS: history, snippet lists and a paste queue. Encrypted, offline, skips passwords.">
+<title>Clippo, clipboard history for the Mac</title>
+<meta name="description" content="Free, open-source clipboard manager for macOS. History, saved snippets and a paste queue. Skips passwords, encrypted on disk, no account.">
 <link rel="icon" href="icon.png">
+<meta property="og:title" content="Clippo">
+<meta property="og:description" content="Clipboard history for the Mac. Small, free, open source.">
+<meta property="og:image" content="https://lorder19.github.io/clippo/screenshots/history.png">
 <style>
   :root {
-    --bg: #f6f4f3; --fg: #141217; --muted: #6a6570; --card: #ffffff; --line: #e4e0de;
-    --accent: #d42a35; --accent-dark: #9e1420; --key: #efebe9;
+    --paper: #f3efe8; --ink: #1b1918; --soft: #6d6660; --line: #d9d2c7; --card: #fbf9f5;
+    --red: #c8232f; --red-ink: #8f141d; --key: #e8e2d8; --hl: #fde7e3;
   }
   @media (prefers-color-scheme: dark) {
-    header img { background: #2a272e; }
-    :root { --bg: #0e0d10; --fg: #f4f1ee; --muted: #9b96a0; --card: #18161b; --line: #2a272e; --key: #232027; }
+    :root { --paper: #131211; --ink: #ece7df; --soft: #9a938a; --line: #2c2926; --card: #1b1917; --key: #2a2724; --hl: #3a1d1e; }
   }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--fg);
-         font: 16px/1.55 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif; }
-  .wrap { max-width: 960px; margin: 0 auto; padding: 0 20px; }
-  header { padding: 72px 0 48px; text-align: center; }
-  header img { width: 120px; height: 120px; border-radius: 27px; box-shadow: 0 16px 40px rgba(20,18,23,.28); }
-  h1 { font-size: clamp(36px, 6vw, 56px); margin: 22px 0 8px; letter-spacing: -.03em; font-weight: 800; }
-  h1 span { color: var(--accent); }
-  .tag { font-size: clamp(18px, 2.6vw, 22px); color: var(--muted); margin: 0 auto 28px; max-width: 620px; }
-  .btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-  .btn { display: inline-block; padding: 13px 24px; border-radius: 12px; font-weight: 600; text-decoration: none; }
-  .primary { color: #fff; background: var(--accent); }
-  .primary:hover { background: var(--accent-dark); }
-  .ghost { color: var(--fg); border: 1px solid var(--line); background: var(--card); }
-  .small { color: var(--muted); font-size: 13px; margin-top: 12px; }
-  section { padding: 36px 0; }
-  h2 { font-size: 28px; letter-spacing: -.01em; margin: 0 0 20px; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
-  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 20px; }
-  .card h3 { margin: 0 0 6px; font-size: 17px; }
-  .card { border-top: 3px solid var(--accent); }
-  .card p { margin: 0; color: var(--muted); font-size: 15px; }
-  kbd { font: 600 13px/1 ui-rounded, -apple-system, sans-serif; background: var(--key); border: 1px solid var(--line);
-        border-radius: 6px; padding: 3px 7px; margin-right: 6px; }
-  ol { padding-left: 22px; } ol li { margin: 8px 0; }
-  footer { padding: 40px 0 60px; text-align: center; color: var(--muted); font-size: 14px; }
-  footer a { color: inherit; }
-  .shot { display: block; width: min(100%, 620px); height: auto; margin: 36px auto 0; }
-  .mock { max-width: 560px; margin: 40px auto 0; background: var(--card); border: 1px solid var(--line); border-radius: 14px;
-          box-shadow: 0 24px 60px rgba(20,18,23,.18); text-align: left; overflow: hidden; }
-  .mock .bar { display: flex; align-items: center; gap: 8px; padding: 12px 14px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 14px; }
-  .mock .row { display: flex; align-items: center; gap: 12px; padding: 9px 14px; font-size: 14px; }
-  .mock .row.on { background: rgba(212,42,53,.12); }
-  .mock .n { width: 22px; height: 22px; border-radius: 6px; display: grid; place-items: center; font-size: 11px; font-weight: 700;
-             background: var(--key); color: var(--muted); flex: none; }
-  .mock .on .n { background: var(--accent); color: #fff; }
-  .mock .sub { color: var(--muted); font-size: 12px; }
-  .mock .thumb { width: 40px; height: 28px; border-radius: 5px; background: linear-gradient(135deg,#3a3440,#7a2a33); flex: none; }
-  table { width: 100%; border-collapse: collapse; font-size: 15px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
-  th, td { padding: 11px 14px; border-bottom: 1px solid var(--line); text-align: center; }
-  th:first-child, td:first-child { text-align: left; }
-  td.y { color: var(--accent); font-weight: 700; }
-  .price { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
-  .price .card { padding: 24px; }
-  .price .amt { font-size: 34px; font-weight: 800; margin: 6px 0 10px; }
-  .price ul { margin: 0; padding-left: 18px; color: var(--muted); }
-  details { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; margin-bottom: 10px; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--paper); color: var(--ink);
+         font: 17px/1.6 -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif; }
+  a { color: var(--red); }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 20px; }
+  kbd { font: 600 0.82em/1 ui-monospace, "SF Mono", Menlo, monospace; background: var(--key); border-radius: 5px;
+        padding: 3px 6px; white-space: nowrap; }
+
+  header { padding: 56px 0 8px; display: grid; grid-template-columns: auto 1fr; gap: 22px; align-items: center; }
+  header img { width: 88px; height: 88px; }
+  h1 { font-size: 44px; line-height: 1; margin: 0 0 6px; letter-spacing: -0.02em; }
+  .lede { margin: 0; color: var(--soft); font-size: 19px; }
+  .get { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; margin: 26px 0 0; }
+  .btn { background: var(--red); color: #fff; text-decoration: none; padding: 12px 20px; border-radius: 10px; font-weight: 600; }
+  .btn:hover { background: var(--red-ink); }
+  .meta { color: var(--soft); font-size: 14px; }
+
+  .note { margin: 40px 0 0; max-width: 640px; }
+
+  /* playground */
+  .play { margin: 44px 0 0; border: 1px solid var(--line); border-radius: 14px; background: var(--card); overflow: hidden; }
+  .play-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 14px 18px;
+               border-bottom: 1px solid var(--line); font-size: 15px; }
+  .play-head b { font-weight: 600; }
+  .play-head span { color: var(--soft); }
+  .play-body { display: grid; grid-template-columns: 1fr 1fr; }
+  .col { padding: 16px 18px; }
+  .col + .col { border-left: 1px solid var(--line); }
+  .col h3 { margin: 0 0 10px; font-size: 13px; font-weight: 600; color: var(--soft); text-transform: uppercase; letter-spacing: .06em; }
+  .src { list-style: none; margin: 0; padding: 0; }
+  .src li { padding: 7px 10px; margin: 0 -10px; border-radius: 7px; cursor: pointer; font-size: 15px; }
+  .src li:hover { background: var(--hl); }
+  .src li.copied { animation: flash .5s; }
+  @keyframes flash { from { background: var(--red); color: #fff; } }
+  textarea { width: 100%; min-height: 150px; resize: vertical; border: 1px solid var(--line); border-radius: 8px;
+             background: var(--paper); color: var(--ink); font: 15px/1.5 inherit; font-family: inherit; padding: 10px; }
+  textarea:focus { outline: 2px solid var(--red); outline-offset: -1px; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .row button { font: inherit; font-size: 14px; border: 1px solid var(--line); background: var(--paper); color: var(--ink);
+                padding: 6px 11px; border-radius: 8px; cursor: pointer; }
+  .row button[aria-pressed="true"] { background: var(--red); border-color: var(--red); color: #fff; }
+
+  .panel { position: absolute; left: 50%; top: 18px; transform: translateX(-50%); width: min(420px, calc(100% - 24px));
+           background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 20px 50px rgba(0,0,0,.25);
+           display: none; z-index: 3; }
+  .panel.open { display: block; }
+  .panel input { width: 100%; border: 0; border-bottom: 1px solid var(--line); background: transparent; color: var(--ink);
+                 font: inherit; padding: 12px 14px; outline: none; }
+  .panel ol { list-style: none; margin: 0; padding: 6px; max-height: 260px; overflow: auto; }
+  .panel li { display: flex; gap: 10px; align-items: center; padding: 7px 8px; border-radius: 7px; cursor: pointer; font-size: 15px; }
+  .panel li.sel { background: var(--hl); }
+  .panel li i { font-style: normal; font: 600 12px ui-monospace, Menlo, monospace; width: 20px; height: 20px; border-radius: 5px;
+                display: grid; place-items: center; background: var(--key); flex: none; }
+  .panel li.sel i { background: var(--red); color: #fff; }
+  .panel .empty { padding: 14px; color: var(--soft); font-size: 15px; }
+  .stage { position: relative; }
+  .queue { margin: 12px 0 0; padding: 0; list-style: none; font-size: 14px; }
+  .queue li { padding: 3px 0; color: var(--ink); }
+  .queue li.used { color: var(--soft); text-decoration: line-through; }
+  .queue li.next::before { content: "→ "; color: var(--red); }
+  .hint { color: var(--soft); font-size: 13px; margin: 8px 0 0; }
+
+  section { margin: 64px 0 0; }
+  h2 { font-size: 26px; letter-spacing: -0.01em; margin: 0 0 14px; }
+  ul.plain { padding-left: 20px; margin: 0; }
+  ul.plain li { margin: 8px 0; }
+  .shots { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-start; margin-top: 18px; }
+  .shots img { max-width: 100%; height: auto; }
+  ol.steps li { margin: 8px 0; }
+  details { border-top: 1px solid var(--line); padding: 12px 0; }
+  details:last-of-type { border-bottom: 1px solid var(--line); }
   summary { cursor: pointer; font-weight: 600; }
-  details p { color: var(--muted); margin: 10px 0 0; }
-  .scroll { overflow-x: auto; }
+  details p { color: var(--soft); margin: 8px 0 0; }
+  footer { margin: 72px 0 0; padding: 22px 0 48px; border-top: 1px solid var(--line); color: var(--soft); font-size: 15px; }
+
+  @media (max-width: 640px) {
+    header { grid-template-columns: 1fr; }
+    h1 { font-size: 36px; }
+    .play-body { grid-template-columns: 1fr; }
+    .col + .col { border-left: 0; border-top: 1px solid var(--line); }
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
     <img src="icon.png" alt="Clippo icon">
-    <h1>clip<span>p</span>o</h1>
-    <p class="tag">A small, private clipboard manager for Mac. History, saved snippets and a paste queue — free, open source, offline.</p>
-    <div class="btns">
-      <a class="btn primary" data-repo="/releases/latest" href="#">Download for macOS</a>
-      <a class="btn ghost" data-repo="" href="#">Source on GitHub</a>
-    </div>
-    <p class="small">macOS 14+ · Apple Silicon &amp; Intel · ~2 MB · no account</p>
-    <img class="shot" src="screenshots/history.png" alt="Clippo clipboard history window">
+    <div>
+      <h1>Clippo</h1>
+      <p class="lede">Clipboard history for the Mac. Small, free, open source.</p>
     </div>
   </header>
+  <div class="get">
+    <a class="btn" href="https://github.com/Lorder19/clippo/releases/latest">Download for macOS</a>
+    <span class="meta">macOS 14+, Apple Silicon and Intel, about 2 MB</span>
+    <a href="https://github.com/Lorder19/clippo">Source on GitHub</a>
+  </div>
+
+  <p class="note">I used CleanClip for years until a macOS update broke it. Everything else I tried was either a subscription or a Swiss army knife. Clippo keeps what you copy, lets you paste it back with a couple of keys, and stays out of the way the rest of the time.</p>
+
+  <div class="play" id="play">
+    <div class="play-head"><b>Try it right here</b><span>Click a line to copy it, then press <kbd id="k-hist">⌘;</kbd> in the box</span></div>
+    <div class="play-body">
+      <div class="col">
+        <h3>Things to copy</h3>
+        <ul class="src" id="src">
+          <li>Invoice #2048 is due on Friday</li>
+          <li>221B Baker Street, London NW1 6XE</li>
+          <li>git commit -m "fix login redirect"</li>
+          <li>Thanks, got it! I'll reply tomorrow.</li>
+          <li>#c8232f</li>
+          <li>Meeting moved to 3:30, same link</li>
+        </ul>
+      </div>
+      <div class="col stage">
+        <h3>Your document</h3>
+        <div class="panel" id="panel" role="dialog" aria-label="Clipboard history">
+          <input id="q" placeholder="Search clipboard" autocomplete="off">
+          <ol id="hist"></ol>
+        </div>
+        <textarea id="doc" placeholder="Click here, then press ⌘; (Ctrl+; on Windows) to open history"></textarea>
+        <div class="row">
+          <button id="b-hist">Open history</button>
+          <button id="b-queue" aria-pressed="false">Paste queue</button>
+          <button id="b-clear">Clear</button>
+        </div>
+        <ol class="queue" id="queue"></ol>
+        <p class="hint" id="hint">Turn on the paste queue, copy a few lines, then press ⌘V here again and again.</p>
+      </div>
+    </div>
+  </div>
 
   <section>
-    <h2>Everything you copy, one shortcut away</h2>
-    <div class="grid">
-      <div class="card"><h3><kbd>⌘;</kbd>History</h3><p>Text and images you copied, searchable. <kbd>⌘1</kbd>–<kbd>⌘9</kbd> pastes instantly.</p></div>
-      <div class="card"><h3><kbd>⌘I</kbd>Snippet lists</h3><p>Your own lists of phrases, addresses and replies. Press a digit to paste a line.</p></div>
-      <div class="card"><h3><kbd>⌘'</kbd>Paste Queue</h3><p>Copy several things in a row, then <kbd>⌘V</kbd> pastes them in order. <kbd>⇧⌘C</kbd> queues a column line by line.</p></div>
-      <div class="card"><h3>Stays out of the way</h3><p>Floating panels never steal focus. Every shortcut can be changed.</p></div>
+    <h2>Three shortcuts</h2>
+    <p><kbd>⌘;</kbd> opens your history. Text and images, newest first, with search. <kbd>⌘1</kbd> to <kbd>⌘9</kbd> pastes one of the top nine without touching the mouse.</p>
+    <p><kbd>⌘I</kbd> opens saved lists for things you paste a lot, like replies or addresses. A digit pastes a line.</p>
+    <p><kbd>⌘'</kbd> starts the paste queue. Copy a few things, then each <kbd>⌘V</kbd> pastes the next one. <kbd>⇧⌘C</kbd> splits a selected column into lines, which is great for moving a spreadsheet column into a web form.</p>
+    <div class="shots">
+      <img src="screenshots/history.png" width="560" alt="Clippo history window">
+      <img src="screenshots/queue.png" width="260" alt="Paste queue window">
     </div>
   </section>
 
   <section>
-    <h2>Private by design</h2>
-    <div class="grid">
-      <div class="card"><h3>Skips passwords</h3><p>Secrets from 1Password, Bitwarden, Apple Passwords and other managers are never saved.</p></div>
-      <div class="card"><h3>Excluded apps</h3><p>Choose apps whose copies are never recorded — banks, work tools, anything.</p></div>
-      <div class="card"><h3>Encrypted on disk</h3><p>History and images are stored with AES-GCM, not plain text. Clear on quit if you like.</p></div>
-      <div class="card"><h3>Fully offline</h3><p>No analytics, no account. Your clipboard never leaves your Mac — the only request is an optional update check, off by default.</p></div>
-    </div>
+    <h2>Your data stays yours</h2>
+    <ul class="plain">
+      <li>Passwords copied from password managers (1Password, Bitwarden, Apple Passwords and others that mark them as concealed) are never saved.</li>
+      <li>You pick apps to ignore. Keychain Access and Passwords are on the list from the start.</li>
+      <li>History and images are encrypted on disk. Honest caveat: the key is stored next to them for your user account, so this stops a leaked file, not someone sitting at your Mac.</li>
+      <li>Clippo's windows are invisible to screen recording and Zoom or Meet screen sharing.</li>
+      <li>No account, no analytics. The only network request is an update check, and it's off until you enable it.</li>
+    </ul>
   </section>
 
   <section>
     <h2>Install</h2>
-    <ol>
-      <li>Download <b>Clippo.zip</b>, unzip it and move Clippo to Applications.</li>
-      <li>Open it. macOS warns about an unidentified developer — go to <b>System Settings → Privacy &amp; Security</b> and click <b>Open Anyway</b>.</li>
-      <li>Turn on Clippo in <b>Accessibility</b>. It's only used to press <kbd>⌘V</kbd> for you.</li>
+    <ol class="steps">
+      <li>Download <b>Clippo.zip</b>, unzip it and drag Clippo into Applications.</li>
+      <li>Open it. macOS will complain about an unidentified developer because I don't pay Apple for a certificate yet. Open System Settings → Privacy &amp; Security and click <b>Open Anyway</b>.</li>
+      <li>Allow Accessibility when asked. Clippo uses it only to press ⌘V for you.</li>
     </ol>
   </section>
 
   <section>
-    <h2>Why not the built-in history?</h2>
-    <div class="scroll"><table>
-      <tr><th></th><th>Clippo</th><th>macOS Spotlight history</th><th>Paid managers</th></tr>
-      <tr><td>Paste by number, one keystroke</td><td class="y">✓</td><td>—</td><td>✓</td></tr>
-      <tr><td>Paste Queue (copy many, paste in order)</td><td class="y">✓</td><td>—</td><td>some</td></tr>
-      <tr><td>Saved snippet lists</td><td class="y">✓</td><td>—</td><td>✓</td></tr>
-      <tr><td>Encrypted on disk</td><td class="y">✓</td><td>—</td><td>rarely</td></tr>
-      <tr><td>Hidden from screen sharing</td><td class="y">✓</td><td>—</td><td>rarely</td></tr>
-      <tr><td>Open source, works offline</td><td class="y">✓</td><td>—</td><td>—</td></tr>
-      <tr><td>Price</td><td class="y">Free</td><td>Free</td><td>$15–30/yr</td></tr>
-    </table></div>
-  </section>
-
-  <section>
-    <h2>Pricing</h2>
-    <div class="price">
-      <div class="card"><h3>Clippo</h3><div class="amt">Free</div>
-        <ul><li>History, lists, Paste Queue</li><li>Images, encryption, app exclusions</li><li>All future fixes</li></ul></div>
-      <div class="card"><h3>Clippo Pro <span class="small">coming soon</span></h3><div class="amt">$9 <span class="small">once</span></div>
-        <ul><li>Keeps formatting (rich text, tables)</li><li>Pinned items &amp; unlimited history</li><li>Text from images (OCR)</li><li>Supports development</li></ul></div>
-    </div>
-  </section>
-
-  <section>
-    <h2>FAQ</h2>
-    <details><summary>Why does macOS say it can't verify the developer?</summary>
-      <p>Clippo isn't signed with a paid Apple certificate yet. Open System Settings → Privacy &amp; Security and click "Open Anyway" once. The code is open, so you can check or build it yourself.</p></details>
-    <details><summary>Why does it need Accessibility?</summary>
-      <p>Only to press ⌘V for you after you pick an item. Clippo doesn't read what you type and never sends your clipboard anywhere.</p></details>
+    <h2>Questions</h2>
+    <details><summary>Why not just use the clipboard history in macOS Tahoe?</summary>
+      <p>It's fine for finding something you copied. Clippo is built around pasting: numbered items, saved lists and the paste queue, all from the keyboard.</p></details>
     <details><summary>A shortcut sometimes does nothing</summary>
-      <p>While a password field is focused, macOS turns on "Secure Input" and blocks all global shortcuts — this affects every app. Some password managers keep it on by mistake; switching apps or restarting the password manager fixes it.</p></details>
-    <details><summary>I don't see the icon in the menu bar</summary>
-      <p>On MacBooks with a notch, extra menu bar icons can hide behind it. Shortcuts still work; launch Clippo again from Spotlight to open Settings.</p></details>
-    <details><summary>Where is my data and how do I uninstall?</summary>
-      <p>Everything is in ~/Library/Application Support/Clippo, encrypted. To uninstall, quit Clippo, delete the app and that folder.</p></details>
+      <p>When a password field is focused, macOS turns on Secure Input and blocks global shortcuts for every app. Some password managers forget to turn it off. Switching apps, or restarting the password manager, fixes it. Clippo shows a warning in its menu when this happens.</p></details>
+    <details><summary>I can't find the menu bar icon</summary>
+      <p>On MacBooks with a notch, extra icons can hide behind it. The shortcuts still work, and opening Clippo again from Spotlight brings up Settings.</p></details>
+    <details><summary>How do I uninstall it?</summary>
+      <p>Quit Clippo, delete the app, then delete ~/Library/Application Support/Clippo.</p></details>
+    <details><summary>Will it stay free?</summary>
+      <p>Yes, everything you see here stays free. I might add a paid version later with extras like keeping rich text formatting, to pay for an Apple developer account.</p></details>
   </section>
 
   <footer>
-    Clippo is free and MIT-licensed. If it saves you time, consider <a data-repo="" href="#">sponsoring</a>.
+    Clippo is MIT licensed. Found a bug or want a feature? <a href="https://github.com/Lorder19/clippo/issues">Open an issue</a>.
   </footer>
 </div>
+
 <script>
-  const REPO = "https://github.com/Lorder19/clippo";
-  document.querySelectorAll("[data-repo]").forEach(a => a.href = REPO + a.dataset.repo);
+(() => {
+  const mac = /Mac|iPhone|iPad/.test(navigator.platform);
+  if (!mac) {
+    document.getElementById('k-hist').textContent = 'Ctrl+;';
+    document.getElementById('hint').textContent = 'Turn on the paste queue, copy a few lines, then press Ctrl+V here again and again.';
+  }
+  const doc = document.getElementById('doc'), panel = document.getElementById('panel'), q = document.getElementById('q');
+  const histEl = document.getElementById('hist'), queueEl = document.getElementById('queue'), qBtn = document.getElementById('b-queue');
+  let history = [], queue = [], cursor = 0, sel = 0, queueOn = false;
+
+  function copy(text, el) {
+    history = [text, ...history.filter(t => t !== text)].slice(0, 30);
+    if (queueOn) queue.push(text);
+    navigator.clipboard?.writeText(text).catch(() => {});
+    if (el) { el.classList.remove('copied'); void el.offsetWidth; el.classList.add('copied'); }
+    renderQueue();
+  }
+  function filtered() {
+    const s = q.value.trim().toLowerCase();
+    return s ? history.filter(t => t.toLowerCase().includes(s)) : history;
+  }
+  function renderHist() {
+    const items = filtered();
+    sel = Math.min(sel, Math.max(items.length - 1, 0));
+    histEl.innerHTML = '';
+    if (!items.length) {
+      histEl.innerHTML = '<li class="empty">' + (history.length ? 'Nothing found' : 'Copy something on the left first') + '</li>';
+      return;
+    }
+    items.forEach((t, i) => {
+      const li = document.createElement('li');
+      if (i === sel) li.className = 'sel';
+      const n = document.createElement('i'); n.textContent = i < 9 ? i + 1 : '';
+      li.append(n, document.createTextNode(t));
+      li.onclick = () => pick(t);
+      histEl.append(li);
+    });
+  }
+  function renderQueue() {
+    queueEl.innerHTML = '';
+    if (!queueOn) return;
+    queue.forEach((t, i) => {
+      const li = document.createElement('li');
+      li.textContent = t;
+      li.className = i < cursor ? 'used' : i === cursor ? 'next' : '';
+      queueEl.append(li);
+    });
+  }
+  function insert(text) {
+    const a = doc.selectionStart, b = doc.selectionEnd;
+    doc.value = doc.value.slice(0, a) + text + doc.value.slice(b);
+    doc.selectionStart = doc.selectionEnd = a + text.length;
+  }
+  function openPanel() { q.value = ''; sel = 0; renderHist(); panel.classList.add('open'); q.focus(); }
+  function closePanel() { panel.classList.remove('open'); doc.focus(); }
+  function pick(t) { closePanel(); insert(t + '\n'); copy(t); }
+
+  document.querySelectorAll('#src li').forEach(li => li.onclick = () => copy(li.textContent, li));
+  document.getElementById('b-hist').onclick = openPanel;
+  document.getElementById('b-clear').onclick = () => { doc.value = ''; queue = []; cursor = 0; renderQueue(); };
+  qBtn.onclick = () => { queueOn = !queueOn; qBtn.setAttribute('aria-pressed', queueOn); queue = []; cursor = 0; renderQueue(); };
+
+  const isMod = e => mac ? e.metaKey : e.ctrlKey;
+  doc.addEventListener('keydown', e => {
+    if (isMod(e) && e.key === ';') { e.preventDefault(); openPanel(); }
+    if (isMod(e) && e.key.toLowerCase() === 'v' && queueOn && queue.length) {
+      e.preventDefault();
+      if (cursor >= queue.length) cursor = 0;
+      insert(queue[cursor] + '\n'); cursor++; renderQueue();
+    }
+  });
+  q.addEventListener('input', () => { sel = 0; renderHist(); });
+  q.addEventListener('keydown', e => {
+    const items = filtered();
+    if (e.key === 'Escape') { e.preventDefault(); closePanel(); }
+    else if (e.key === 'ArrowDown') { e.preventDefault(); sel = Math.min(sel + 1, items.length - 1); renderHist(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); sel = Math.max(sel - 1, 0); renderHist(); }
+    else if (e.key === 'Enter' && items[sel]) { e.preventDefault(); pick(items[sel]); }
+    else if (isMod(e) && /^[1-9]$/.test(e.key) && items[+e.key - 1]) { e.preventDefault(); pick(items[+e.key - 1]); }
+  });
+  document.addEventListener('click', e => { if (panel.classList.contains('open') && !panel.contains(e.target) && e.target.id !== 'b-hist') closePanel(); });
+})();
 </script>
 </body>
 </html>

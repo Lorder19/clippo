@@ -33,8 +33,8 @@ struct QueueView: View {
 
             if queue.items.isEmpty {
                 EmptyState(icon: "doc.on.doc",
-                           title: L("Копируй — всё встанет в очередь"),
-                           subtitle: L("⌘C — по одному\n⇧⌘C — столбец, каждая строка отдельно"))
+                           title: L("Копируй, и всё встанет в очередь"),
+                           subtitle: L("⌘C по одному\n⇧⌘C столбец, каждая строка отдельно"))
             } else {
                 ScrollViewReader { proxy in
                     ScrollView {
@@ -73,6 +73,6 @@ struct QueueView: View {
         .saturation(used ? 0 : 1)
         .id(item.id)
         .onTapGesture { queue.setNext(item.id) }
-        .help(L("Клик — вставить эту строку следующей"))
+        .help(L("Нажмите, чтобы эта строка вставилась следующей"))
     }
 }

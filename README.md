@@ -1,59 +1,54 @@
-<p align="center"><img src="docs/icon.png" width="128" alt="Clippo icon"></p>
+<p align="center"><img src="docs/icon.png" width="112" alt=""></p>
 
 <h1 align="center">Clippo</h1>
 
-<p align="center">A small, private clipboard manager for macOS — history, saved snippets and a paste queue.<br>
-Free and open source. No account, no telemetry, works offline.</p>
+<p align="center">Clipboard history for the Mac. Small, free, open source.<br>
+<a href="https://lorder19.github.io/clippo/">Website</a> · <a href="https://github.com/Lorder19/clippo/releases/latest">Download</a></p>
 
-<p align="center"><a href="#install">Install</a> · <a href="#features">Features</a> · <a href="#privacy">Privacy</a> · <a href="#по-русски">По-русски</a></p>
+<p align="center"><img src="docs/screenshots/history.png" width="560" alt="History window"></p>
 
-<p align="center"><img src="docs/screenshots/history.png" width="560" alt="Clippo history"></p>
+I used CleanClip for years. After a macOS update it started crashing, and the alternatives I tried either wanted a subscription or did too much. So I wrote my own. Clippo does three things and tries to stay out of the way.
+
+## What it does
+
+Press ⌘; to see what you copied recently, text and images. Type to search, hit ⌘1 to ⌘9 to paste one of the first nine.
+
+Press ⌘I for your saved lists: canned replies, addresses, whatever you paste often. A digit pastes a line.
+
+Press ⌘' for the paste queue. Copy a few things in a row, then every ⌘V pastes the next one. ⇧⌘C takes a selected column (from a spreadsheet, a log, anything) and queues it line by line. ⇧⌘X empties the queue.
 
 <p align="center">
-  <img src="docs/screenshots/queue.png" width="260" alt="Paste Queue">
-  <img src="docs/screenshots/list.png" width="260" alt="Snippet lists">
+  <img src="docs/screenshots/queue.png" width="260" alt="Paste queue">
+  <img src="docs/screenshots/list.png" width="260" alt="Saved lists">
 </p>
 
----
+All shortcuts can be changed in Settings. The panels float over whatever you're working in and don't take focus away from it, so the paste lands where you expect.
 
-## Features
+## About your data
 
-- **History** (`⌘;`) — everything you copy, text and images, searchable. `⌘1`–`⌘9` pastes an item instantly.
-- **Snippet lists** (`⌘I`) — your own lists of phrases; digits `1`–`0` paste a line.
-- **Paste Queue** (`⌘'`) — copy several things in a row, then press `⌘V` repeatedly to paste them in order.
-  `⇧⌘C` copies a selection line by line into the queue (a column → N pastes), `⇧⌘X` clears it.
-- **Images** — screenshots and copied pictures are kept with thumbnails and pasted back as images.
-- **Your shortcuts** — every shortcut can be changed in Settings.
-- **Floating panels** that don't steal focus: the app you're pasting into stays in front.
-- Native Swift (AppKit + SwiftUI), no dependencies, ~2 MB.
+A clipboard manager sees everything you copy, so I tried to be careful:
 
-## Privacy
+* Passwords copied from 1Password, Bitwarden, Apple Passwords and other managers that mark them as concealed are never saved.
+* You can list apps whose copies should be ignored (Keychain Access and Passwords are there by default).
+* History and images are encrypted on disk (AES-GCM). The key sits next to the data, readable only by your user account, so this protects against the file leaking, not against someone who has your login.
+* Clippo windows don't show up in screen recordings or when you share your screen.
+* Nothing is sent anywhere. The one exception is a daily update check against GitHub, and it's off unless you turn it on.
 
-Clippo is built for people who copy passwords, keys and client data all day.
-
-- **Passwords are never saved.** Copies marked as secret by password managers (1Password, Bitwarden, Apple Passwords
-  and anything following the [nspasteboard.org](http://nspasteboard.org) convention) are skipped.
-- **Exclude apps.** Nothing copied in Keychain Access or Passwords is recorded by default; add banks, browsers or work
-  tools in Settings.
-- **Encrypted on disk.** History, queue and images are stored with AES-GCM, not as plain text.
-- **Clear on quit**, or clear history with one click.
-- **Offline.** Your history never leaves your Mac. The only network request is an optional daily update check (off by default).
-
-Clippo needs **Accessibility** permission only to press `⌘V` for you. It does not record keystrokes.
+Clippo needs Accessibility permission for one thing: pressing ⌘V for you after you pick an item. It doesn't log keystrokes.
 
 ## Install
 
-Requires macOS 14 or later.
+macOS 14 or newer, Apple Silicon or Intel.
 
-1. Download `Clippo.zip` from [Releases](../../releases) and unzip it.
-2. Move `Clippo.app` to **Applications** and open it.
-3. macOS will say it can't verify the developer — Clippo isn't signed with a paid Apple certificate yet.
-   Open **System Settings → Privacy & Security**, scroll down and click **Open Anyway**.
-4. Clippo shows a short welcome window. Turn on Clippo in **Accessibility** when asked.
+1. Download `Clippo.zip` from [Releases](https://github.com/Lorder19/clippo/releases/latest), unzip, drag Clippo into Applications.
+2. Open it. macOS will say it can't check the developer, because I don't have a paid Apple developer account yet. Go to System Settings → Privacy & Security, scroll down, click "Open Anyway".
+3. Turn Clippo on in Accessibility when it asks.
 
-The icon lives in the menu bar. Launch Clippo again from Spotlight to open Settings.
+The icon lives in the menu bar. If it's hidden behind the notch, open Clippo again from Spotlight and you'll get the settings window.
 
-### Build from source
+To uninstall, quit Clippo and delete the app and `~/Library/Application Support/Clippo`.
+
+## Building it yourself
 
 ```bash
 git clone https://github.com/Lorder19/clippo.git
@@ -61,30 +56,24 @@ cd clippo
 ./build.sh install
 ```
 
-Needs Xcode command line tools. Without a stable signing identity the build is signed ad-hoc, so macOS asks for
-Accessibility again after each rebuild. To avoid that, create a self-signed code-signing certificate named
-`Clippo Local Signing` in Keychain Access.
+You need the Xcode command line tools. Without a fixed signing certificate the build is signed ad hoc, which means macOS asks for Accessibility again after every rebuild. Create a self-signed code signing certificate called `Clipo Local Signing` in Keychain Access to avoid that.
 
-## Support
+`Clippo -ClippoDemo history` (or `list`, `queue`, `settings`) opens a window filled with sample data. That's how the screenshots are made; your real history isn't touched.
 
-Clippo is free. If it saves you time, a donation keeps it going — see the Sponsor button on this page.
+## Languages
 
-## License
+English, Russian, Simplified Chinese. If you'd like to add yours, the strings are in `Resources/`.
 
-MIT
+## Feedback
+
+Bugs and ideas go to [Issues](https://github.com/Lorder19/clippo/issues). If Clippo saves you time, a star helps other people find it.
+
+MIT license.
 
 ---
 
-## По-русски
+### По-русски
 
-**Clippo** — лёгкий приватный менеджер буфера обмена для macOS. Бесплатный, с открытым кодом, без аккаунтов и интернета.
+Clippo это менеджер буфера обмена для Mac. Бесплатный, с открытым кодом, без аккаунтов. ⌘; открывает историю (текст и картинки), ⌘I ваши списки фраз, ⌘' очередь вставки: копируете несколько вещей подряд, а ⌘V вставляет их по одной. Пароли из менеджеров паролей не сохраняются, история на диске зашифрована.
 
-- `⌘;` — история скопированного (текст и картинки) с поиском, `⌘1`–`⌘9` — вставить сразу.
-- `⌘I` — свои списки фраз, цифры вставляют строку.
-- `⌘'` — Paste Queue: копируете подряд, `⌘V` вставляет по очереди. `⇧⌘C` — построчно в очередь, `⇧⌘X` — очистить.
-- Пароли из менеджеров паролей не записываются, есть исключения по программам, история зашифрована на диске.
-- Все сочетания меняются в настройках.
-
-**Установка:** скачайте `Clippo.zip` в [Releases](../../releases), перенесите Clippo в «Программы» и откройте.
-macOS предупредит о неизвестном разработчике — зайдите в **Системные настройки → Конфиденциальность и безопасность**
-и нажмите **«Всё равно открыть»**. Затем включите Clippo в **Универсальном доступе** — он нужен только чтобы нажимать `⌘V` за вас.
+Скачать можно в [Releases](https://github.com/Lorder19/clippo/releases/latest). При первом запуске macOS предупредит о неизвестном разработчике: Системные настройки → Конфиденциальность и безопасность → «Всё равно открыть». Потом включите Clippo в Универсальном доступе.

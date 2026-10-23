@@ -21,7 +21,7 @@ private struct StoreData: Codable {
 
 final class Store: ObservableObject {
     static let shared = Store()
-    // Huge copies would be rewritten into the JSON on every save — keeps the file small.
+    // Huge copies would be rewritten into the JSON on every save, so they are skipped.
     static let maxClipBytes = 1_000_000
 
     @Published private(set) var history: [Clip] = []

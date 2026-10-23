@@ -180,7 +180,7 @@ struct SettingsView: View {
             } header: {
                 Text(L("Приватность"))
             } footer: {
-                Text(L("История и картинки хранятся на диске зашифрованными, а не открытым текстом. Ключ лежит рядом, доступ к нему — только у вашей учётной записи."))
+                Text(L("История и картинки хранятся на диске зашифрованными, а не открытым текстом. Ключ лежит рядом, прочитать его может только ваша учётная запись."))
                     .font(.caption).foregroundStyle(.secondary)
             }
 
@@ -201,7 +201,7 @@ struct SettingsView: View {
                     Button(L("По умолчанию")) { settings.resetShortcuts() }.buttonStyle(.link)
                 }
             } footer: {
-                Text(L("Системные ⌘C, ⌘V, ⌘X, ⌘Z и подобные занять нельзя. Esc — отмена записи."))
+                Text(L("Системные ⌘C, ⌘V, ⌘X, ⌘Z и подобные занять нельзя. Esc отменяет запись."))
                     .font(.caption).foregroundStyle(.secondary)
             }
 
