@@ -404,9 +404,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     private func setupStatusItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        let image = NSImage(systemSymbolName: "doc.on.clipboard", accessibilityDescription: "Clippo")
-        image?.isTemplate = true
-        statusItem.button?.image = image
+        statusItem.button?.image = MenuBarIcon.make()
         statusItem.button?.imagePosition = .imageLeading
         let menu = NSMenu()
         menu.delegate = self
@@ -416,7 +414,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     func menuNeedsUpdate(_ menu: NSMenu) {
         menu.removeAllItems()
         let s = Settings.shared
-        add(menu, L("История"), s.shortcut(.history).label, #selector(menuHistory))
+        let recent = Array(store.history.prefix(3))
+        if !recent.isEmpty {
+            let header = NSMenuItem(title: L("Недавнее"), action: nil, keyEquivalent: "")
+            header.isEnabled = false
+            menu.addItem(header)
+            for clip in recent {
+                let title = clip.image == nil ? ClipText.menuTitle(clip.text) : ClipText.imageTitle(clip)
+                let item = add(menu, title, nil, #selector(pickRecent(_:)))
+                item.representedObject = clip.id
+                if let name = clip.image, let thumb = ImageStore.thumbnail(name) {
+                    let small = NSImage(size: NSSize(width: 22, height: 16))
+                    small.lockFocus()
+                    thumb.draw(in: NSRect(x: 0, y: 0, width: 22, height: 16))
+                    small.unlockFocus()
+                    item.image = small
+                }
+            }
+            menu.addItem(.separator())
+        }
+        add(menu, recent.isEmpty ? L("История") : L("Вся история"), s.shortcut(.history).label, #selector(menuHistory))
         add(menu, L("Списки"), s.shortcut(.list).label, #selector(menuList))
         add(menu, queue.isActive ? L("Выключить Paste Queue") : L("Включить Paste Queue"), s.shortcut(.queue).label, #selector(menuQueue))
         menu.addItem(.separator())
@@ -458,6 +475,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     @objc private func menuQueue() { toggleQueue() }
     @objc private func revealData() { NSWorkspace.shared.activateFileViewerSelecting([store.fileURL]) }
     @objc private func noop() {}
+
+    /// Menu clicks don't take focus from the frontmost app, so the paste lands where you were typing.
+    @objc private func pickRecent(_ sender: NSMenuItem) {
+        guard let id = sender.representedObject as? UUID, let clip = store.history.first(where: { $0.id == id }) else { return }
+        rememberTargetApp()
+        DispatchQueue.main.async { self.pickFromHistory(clip) }
+    }
     @objc private func openUpdate() { Updater.shared.available.map { NSWorkspace.shared.open($0.url) } }
     @objc private func quit() { NSApp.terminate(nil) }
 

@@ -38,6 +38,12 @@ enum ClipText {
         }
     }
 
+    /// One line, short enough for a menu.
+    static func menuTitle(_ text: String) -> String {
+        let line = text.split(whereSeparator: \.isNewline).first.map(String.init)?.trimmingCharacters(in: .whitespaces) ?? ""
+        return line.count > 42 ? String(line.prefix(41)) + "…" : line
+    }
+
     static func imageTitle(_ clip: Clip) -> String {
         guard let name = clip.image, let size = ImageStore.size(name) else { return L("Картинка") }
         return String(format: L("Картинка %d×%d"), Int(size.width), Int(size.height))
