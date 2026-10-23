@@ -282,15 +282,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         whenKeysReleased { [weak self] in
             guard let self, token == self.splitToken else { return }
             let before = NSPasteboard.general.changeCount
-            Paster.sendCommandC()
+            // Over remote desktop the copied text has to travel back from the remote machine first.
+            let remote = Paster.isRemoteDesktop(NSWorkspace.shared.frontmostApplication)
+            Paster.sendCopy()
             // Slow apps sometimes drop the first one; try once more if nothing reached the pasteboard.
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
+            DispatchQueue.main.asyncAfter(deadline: .now() + (remote ? 1.2 : 0.4)) { [weak self] in
                 guard let self, token == self.splitToken, self.awaitingSplit,
                       NSPasteboard.general.changeCount == before else { return }
-                Paster.sendCommandC()
+                Paster.sendCopy()
             }
             // Nothing selected → no pasteboard change; don't let the flag swallow a later normal copy.
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
+            DispatchQueue.main.asyncAfter(deadline: .now() + (remote ? 4 : 2)) { [weak self] in
                 if token == self?.splitToken, self?.awaitingSplit == true {
                     self?.awaitingSplit = false
                 }
@@ -341,8 +343,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             target?.activate()
         }
         whenTargetIsFrontmost { [weak self] in
-            Paster.sendCommandV(to: target)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+            Paster.sendPaste(to: target)
+            let settle = Paster.isRemoteDesktop(target) ? 0.6 : 0.2
+            DispatchQueue.main.asyncAfter(deadline: .now() + settle) { [weak self] in
                 self?.pasteNextKey.setEnabled(self?.queue.hasPending ?? false)
             }
         }

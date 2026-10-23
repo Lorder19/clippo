@@ -27,13 +27,53 @@ enum Paster {
     static func sendCommandV(to target: NSRunningApplication? = nil) { sendCommand(9, to: target) }
     static func sendCommandC() { sendCommand(8, to: nil) }
 
+    /// Remote desktop clients (Windows App and friends) forward keys to a Windows machine, where paste is
+    /// Ctrl+V and Cmd often arrives as the Windows key. They also sync the clipboard to the remote side a
+    /// moment after it changes, so pasting needs a short wait.
+    static let remoteDesktopApps: Set<String> = [
+        "com.microsoft.rdc.macos",          // Windows App / Microsoft Remote Desktop
+        "com.microsoft.rdc.mac",            // older Microsoft Remote Desktop 8
+        "com.2X.Client.Mac",                // Parallels Client
+        "com.vmware.horizon",               // Omnissa / VMware Horizon
+        "com.citrix.receiver.icaviewer.mac", // Citrix Viewer
+        "com.devolutions.remotedesktopmanager",
+        "com.jumpdesktop.Jump-Desktop",
+        "com.microsoft.rdc.osx.beta",
+    ]
+
+    static func isRemoteDesktop(_ app: NSRunningApplication?) -> Bool {
+        app?.bundleIdentifier.map(remoteDesktopApps.contains) ?? false
+    }
+
+    /// Paste into the frontmost app the way it understands.
+    static func sendPaste(to target: NSRunningApplication?) {
+        if isRemoteDesktop(target) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { sendKey(9, flags: .maskControl, to: nil) }
+        } else {
+            sendCommandV(to: target)
+        }
+    }
+
+    /// Copy the selection in the frontmost app the way it understands.
+    static func sendCopy() {
+        if isRemoteDesktop(NSWorkspace.shared.frontmostApplication) {
+            sendKey(8, flags: .maskControl, to: nil)
+        } else {
+            sendCommandC()
+        }
+    }
+
     private static func sendCommand(_ key: CGKeyCode, to target: NSRunningApplication?) {
+        sendKey(key, flags: .maskCommand, to: target)
+    }
+
+    private static func sendKey(_ key: CGKeyCode, flags: CGEventFlags, to target: NSRunningApplication?) {
         // Private state: the real keyboard's modifiers (a still-held Shift) are not merged into our event.
         let src = CGEventSource(stateID: .privateState)
         let down = CGEvent(keyboardEventSource: src, virtualKey: key, keyDown: true)
         let up = CGEvent(keyboardEventSource: src, virtualKey: key, keyDown: false)
-        down?.flags = .maskCommand
-        up?.flags = .maskCommand
+        down?.flags = flags
+        up?.flags = flags
         if let pid = target?.processIdentifier, pid > 0 {
             down?.postToPid(pid)
             up?.postToPid(pid)
