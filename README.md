@@ -5,6 +5,13 @@
 <p align="center">Clipboard history for the Mac. Small, free, open source.<br>
 <a href="https://lorder19.github.io/clippo/">Website</a> · <a href="https://github.com/Lorder19/clippo/releases/latest">Download</a></p>
 
+<p align="center">
+<a href="https://github.com/Lorder19/clippo/releases/latest"><img src="https://img.shields.io/github/v/release/Lorder19/clippo?label=version&color=c8232f" alt="Latest version"></a>
+<a href="https://github.com/Lorder19/clippo/releases"><img src="https://img.shields.io/github/downloads/Lorder19/clippo/total?color=555" alt="Downloads"></a>
+<a href="https://github.com/Lorder19/clippo/actions/workflows/build.yml"><img src="https://github.com/Lorder19/clippo/actions/workflows/build.yml/badge.svg" alt="Build"></a>
+<img src="https://img.shields.io/badge/macOS-14%2B-555" alt="macOS 14+">
+</p>
+
 <p align="center"><img src="docs/screenshots/history.png" width="560" alt="History window"></p>
 
 I used CleanClip for years. After a macOS update it started crashing, and the alternatives I tried either wanted a subscription or did too much. So I wrote my own. Clippo does three things and tries to stay out of the way.
@@ -66,7 +73,7 @@ English, Russian, Simplified Chinese. If you'd like to add yours, the strings ar
 
 ## Feedback
 
-Bugs and ideas go to [Issues](https://github.com/Lorder19/clippo/issues). If Clippo saves you time, a star helps other people find it.
+Bugs go to [Issues](https://github.com/Lorder19/clippo/issues), questions and ideas to [Discussions](https://github.com/Lorder19/clippo/discussions). Want to help? See [CONTRIBUTING](CONTRIBUTING.md). What changed in each version is in the [changelog](CHANGELOG.md). If Clippo saves you time, a star helps other people find it.
 
 MIT license.
 
