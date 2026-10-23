@@ -111,3 +111,14 @@
 "Скачать" = "Download";
 "Недавнее" = "Recent";
 "Вся история" = "All History";
+"⬇︎ Обновить до версии %@…" = "⬇︎ Update to version %@…";
+"Проверить обновления…" = "Check for Updates…";
+"Установлена версия %@." = "You have version %@.";
+"Обновить Clippo до версии %@?" = "Update Clippo to version %@?";
+"Clippo скачает новую версию с GitHub, проверит подпись, заменит себя и перезапустится. История и настройки сохранятся." = "Clippo will download the new version from GitHub, check its signature, replace itself and restart. Your history and settings stay.";
+"Обновить" = "Update";
+"Что нового" = "What's New";
+"Обновляю…" = "Updating…";
+"Не получилось обновить" = "Couldn't update";
+"Можно скачать новую версию вручную со страницы релиза." = "You can download the new version from the release page instead.";
+"Открыть страницу" = "Open Page";

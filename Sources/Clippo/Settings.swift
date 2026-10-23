@@ -163,7 +163,10 @@ struct SettingsView: View {
                 HStack {
                     Button(L("Проверить сейчас")) { updater.check() }
                     if let r = updater.lastResult { Text(r).foregroundStyle(.secondary) }
-                    if let u = updater.available { Link(L("Скачать"), destination: u.url) }
+                    if let u = updater.available {
+                        Button(updater.installing ? L("Обновляю…") : L("Обновить")) { updater.install(u) }
+                            .disabled(updater.installing)
+                    }
                 }
                 Picker(L("Хранить в истории"), selection: $settings.historyLimit) {
                     ForEach(Settings.historyLimits, id: \.self) { Text(String(format: L("%d записей"), $0)).tag($0) }

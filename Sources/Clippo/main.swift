@@ -455,10 +455,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             menu.addItem(.separator())
         }
         if let update = Updater.shared.available {
-            add(menu, String(format: L("⬇︎ Скачать версию %@"), update.version), nil, #selector(openUpdate))
+            add(menu, String(format: L("⬇︎ Обновить до версии %@…"), update.version), nil, #selector(openUpdate))
             menu.addItem(.separator())
         }
         add(menu, L("Настройки…"), "⌘,", #selector(openSettings))
+        add(menu, L("Проверить обновления…"), nil, #selector(checkUpdates))
         add(menu, L("Показать файл данных"), nil, #selector(revealData))
         menu.addItem(.separator())
         add(menu, L("Выйти из Clippo"), nil, #selector(quit))
@@ -489,7 +490,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         rememberTargetApp()
         DispatchQueue.main.async { self.pickFromHistory(clip) }
     }
-    @objc private func openUpdate() { Updater.shared.available.map { NSWorkspace.shared.open($0.url) } }
+    @objc private func openUpdate() { Updater.shared.available.map { Updater.shared.confirmInstall($0) } }
+    @objc private func checkUpdates() { Updater.shared.checkInteractively() }
     @objc private func quit() { NSApp.terminate(nil) }
 
 }

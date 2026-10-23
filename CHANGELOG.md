@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.2 (October 2026)
+
+- Update from inside the app: Clippo menu > Check for Updates. It downloads the new version, checks it's signed by the same developer, replaces itself and restarts.
+- New menu bar icon, and the last three copies right in the menu.
+- Works over remote desktop (Windows App, Parallels Client, Citrix, Horizon): pastes with Ctrl+V and waits for the clipboard to sync.
+- Editing a line in a saved list no longer pastes it and closes the window.
+- Lighter on the battery: the clipboard is checked less often and macOS can group those checks with other timers.
+
 ## 0.3.1 (October 2026)
 
 - Dates in the history list were formatted in Russian even in the English interface.
