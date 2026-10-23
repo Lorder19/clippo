@@ -41,8 +41,9 @@
   code { font: 0.9em ui-monospace, "SF Mono", Menlo, monospace; background: var(--key); padding: 2px 6px; border-radius: 5px; }
   .meta { color: var(--soft); font-size: 14px; }
 
-  .note { margin: 40px 0 0; max-width: 640px; }
-  .demo { display: block; width: 100%; max-width: 800px; height: auto; margin: 36px 0 0; border-radius: 12px; }
+  .note { margin: 40px 0 0; }
+  .note, section > p, ul.plain, ol.steps, details p { max-width: 680px; }
+  .demo { display: block; width: 100%; height: auto; margin: 36px 0 0; border-radius: 14px; border: 1px solid var(--line); }
 
   /* playground */
   .play { margin: 44px 0 0; border: 1px solid var(--line); border-radius: 14px; background: var(--card); overflow: hidden; }
@@ -91,8 +92,8 @@
   h2 { font-size: 26px; letter-spacing: -0.01em; margin: 0 0 14px; }
   ul.plain { padding-left: 20px; margin: 0; }
   ul.plain li { margin: 8px 0; }
-  .shots { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-start; margin-top: 18px; }
-  .shots img { max-width: 100%; height: auto; }
+  .shots { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; align-items: center; margin-top: 22px; }
+  .shots img { width: 100%; height: auto; }
   ol.steps li { margin: 8px 0; }
   details { border-top: 1px solid var(--line); padding: 12px 0; }
   details:last-of-type { border-bottom: 1px solid var(--line); }
@@ -105,6 +106,9 @@
     h1 { font-size: 36px; }
     .play-body { grid-template-columns: 1fr; }
     .col + .col { border-left: 0; border-top: 1px solid var(--line); }
+    .shots { grid-template-columns: 1fr; }
+    .langs { position: static; text-align: right; padding-top: 14px; }
+    header { padding-top: 20px; }
   }
   .langs { position: absolute; top: 18px; right: 20px; font-size: 14px; color: var(--soft); }
   .langs a { color: var(--soft); text-decoration: none; margin-left: 10px; }
