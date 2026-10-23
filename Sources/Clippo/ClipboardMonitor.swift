@@ -34,8 +34,8 @@ final class ClipboardMonitor {
         let pb = NSPasteboard.general
         guard pb.changeCount != lastChange else { return }
         lastChange = pb.changeCount
-        if let types = pb.types, !Self.secretTypes.isDisjoint(with: types) { NSLog("Clippo: skipped secret copy"); return }
-        if let id = NSWorkspace.shared.frontmostApplication?.bundleIdentifier, Settings.shared.excluded.contains(id) { NSLog("Clippo: skipped copy from excluded %@", id); return }
+        if let types = pb.types, !Self.secretTypes.isDisjoint(with: types) { return }
+        if let id = NSWorkspace.shared.frontmostApplication?.bundleIdentifier, Settings.shared.excluded.contains(id) { return }
         if let text = pb.string(forType: .string) {
             if !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { onCopy?(text) }
         } else if let png = ImageStore.png(from: pb) {

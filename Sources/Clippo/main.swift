@@ -223,7 +223,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private func handleCopy(_ text: String) {
         store.record(text)
         if awaitingSplit {
-            NSLog("Clippo split#%d: got copy, %d lines", splitToken, ClipText.lines(text).count)
             awaitingSplit = false
             if !queue.isActive { queue.activate() }
             queue.push(ClipText.lines(text))
@@ -237,26 +236,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         guard Paster.ensureAccessibility(prompt: false) else { NSSound.beep(); return }
         splitToken += 1
         let token = splitToken
-        NSLog("Clippo split#%d: hotkey, front=%@", token, NSWorkspace.shared.frontmostApplication?.bundleIdentifier ?? "?")
         awaitingSplit = true
         // The hotkey fires on key-down. A synthetic ⌘C sent while the real C (or Shift) is still held is
         // read as auto-repeat or as ⇧⌘C (Chrome's Inspect) and silently ignored. Wait for both to go up.
         whenKeysReleased { [weak self] in
             guard let self, token == self.splitToken else { return }
             let before = NSPasteboard.general.changeCount
-            NSLog("Clippo split#%d: keys up, send ⌘C, cc=%d front=%@", token, before, NSWorkspace.shared.frontmostApplication?.bundleIdentifier ?? "?")
             Paster.sendCommandC()
             // Slow apps sometimes drop the first one; try once more if nothing reached the pasteboard.
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
                 guard let self, token == self.splitToken, self.awaitingSplit,
                       NSPasteboard.general.changeCount == before else { return }
-                NSLog("Clippo split#%d: no change, retry ⌘C", token)
                 Paster.sendCommandC()
             }
             // Nothing selected → no pasteboard change; don't let the flag swallow a later normal copy.
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
                 if token == self?.splitToken, self?.awaitingSplit == true {
-                    NSLog("Clippo split#%d: gave up, nothing copied", token)
                     self?.awaitingSplit = false
                 }
             }
