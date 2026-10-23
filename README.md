@@ -38,7 +38,7 @@ A clipboard manager sees everything you copy, so I tried to be careful:
 * Passwords copied from 1Password, Bitwarden, Apple Passwords and other managers that mark them as concealed are never saved.
 * You can list apps whose copies should be ignored (Keychain Access and Passwords are there by default).
 * History and images are encrypted on disk (AES-GCM). The key sits next to the data, readable only by your user account, so this protects against the file leaking, not against someone who has your login.
-* Clippo windows are marked private, so macOS screenshots skip them. Some recording and video call apps ignore that flag, so check yours before sharing your screen.
+* Clippo windows are marked private: macOS screenshots skip them and they don't show up when you share your screen in Telegram. A few recording apps ignore that flag, so check yours if it matters.
 * Nothing is sent anywhere. The one exception is a daily update check against GitHub, and it's off unless you turn it on.
 
 Clippo needs Accessibility permission for one thing: pressing ⌘V for you after you pick an item. It doesn't log keystrokes.
