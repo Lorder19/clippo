@@ -69,12 +69,48 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { self.showDemoPanel() }
     }
 
+    private var tourBackdrop: NSWindow?
+
+    /// Scripted walk through history and the paste queue, for recording a demo GIF without touching the keyboard.
+    private func runTour() {
+        guard let screen = NSScreen.main?.visibleFrame else { return }
+        let origin = NSPoint(x: screen.midX - 470, y: screen.midY - 220)
+        historyPanel.setFrame(NSRect(x: origin.x, y: origin.y, width: 600, height: 440), display: true)
+        queuePanel.setFrame(NSRect(x: origin.x + 620, y: origin.y + 60, width: 320, height: 330), display: true)
+        // Tell the recorder where to look, in screen coordinates with the origin at the top left.
+        let full = NSScreen.screens[0].frame
+        let rect = "\(Int(origin.x - 30)),\(Int(full.maxY - origin.y - 440 - 40)),1000,520"
+        try? rect.write(to: Demo.directory.appendingPathComponent("tour-rect"), atomically: true, encoding: .utf8)
+        // Plain backdrop so the recording shows Clippo, not whatever is on your screen.
+        let backdrop = NSWindow(contentRect: NSRect(x: origin.x - 30, y: origin.y - 40, width: 1000, height: 520),
+                                styleMask: .borderless, backing: .buffered, defer: false)
+        backdrop.backgroundColor = NSColor(srgbRed: 0.93, green: 0.91, blue: 0.88, alpha: 1)
+        backdrop.level = .normal
+        backdrop.isReleasedWhenClosed = false
+        backdrop.orderFrontRegardless()
+        tourBackdrop = backdrop
+        queue.clear()
+        var t = 0.0
+        func at(_ delay: Double, _ step: @escaping () -> Void) { t += delay; DispatchQueue.main.asyncAfter(deadline: .now() + t, execute: step) }
+        at(0.3) { self.historyModel.selection = 0; self.historyPanel.present() }
+        for i in 1...3 { at(0.55) { self.historyModel.selection = i } }
+        for prefix in ["b", "ba", "bak", "bake", "baker"] { at(0.18) { self.historyModel.query = prefix } }
+        at(1.0) { self.historyModel.query = "" }
+        at(0.5) { self.historyModel.tab = self.store.lists.first?.id }
+        for i in 1...2 { at(0.5) { self.historyModel.selection = i } }
+        at(0.9) { self.historyModel.tab = nil; self.queue.activate(); self.queuePanel.orderFrontRegardless() }
+        for item in Demo.queue { at(0.45) { self.queue.push([item]) } }
+        for _ in 0..<3 { at(0.8) { _ = self.queue.popNext() } }
+        at(1.2) { try? "done".write(to: Demo.directory.appendingPathComponent("tour-done"), atomically: true, encoding: .utf8) }
+    }
+
     private func showDemoPanel() {
         switch Demo.panel {
         case "list": toggleList()
         case "queue": queuePanel.present()
         case "settings": openSettings()
         case "onboarding": showOnboarding()
+        case "tour": runTour()
         default: toggleHistory()
         }
     }

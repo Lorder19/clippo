@@ -12,7 +12,7 @@
 <img src="https://img.shields.io/badge/macOS-14%2B-555" alt="macOS 14+">
 </p>
 
-<p align="center"><img src="docs/screenshots/history.png" width="560" alt="History window"></p>
+<p align="center"><img src="docs/demo.gif" width="720" alt="Clippo history, search and paste queue"></p>
 
 I used CleanClip for years. After a macOS update it started crashing, and the alternatives I tried either wanted a subscription or did too much. So I wrote my own. Clippo does three things and tries to stay out of the way.
 
