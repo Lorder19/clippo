@@ -47,6 +47,14 @@ Clippo needs Accessibility permission for one thing: pressing ⌘V for you after
 
 macOS 14 or newer, Apple Silicon or Intel.
 
+With Homebrew:
+
+```bash
+brew install --cask lorder19/tap/clippo
+```
+
+Or by hand:
+
 1. Download `Clippo.zip` from [Releases](https://github.com/Lorder19/clippo/releases/latest), unzip, drag Clippo into Applications.
 2. Open it. macOS will say it can't check the developer, because I don't have a paid Apple developer account yet. Go to System Settings → Privacy & Security, scroll down, click "Open Anyway".
 3. Turn Clippo on in Accessibility when it asks.
