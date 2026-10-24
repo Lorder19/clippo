@@ -34,17 +34,19 @@ struct HistoryView: View {
                         .textFieldStyle(.plain)
                         .font(.system(size: 14))
                         .focused($searchFocused)
-                        .onKeyPress(.downArrow) { move(1, items.count); return .handled }
-                        .onKeyPress(.upArrow) { move(-1, items.count); return .handled }
+                        .onKeyPress(.downArrow) { move(1, current.count); return .handled }
+                        .onKeyPress(.upArrow) { move(-1, current.count); return .handled }
                         .onKeyPress(.tab) { cycleTab(); return .handled }
                         .onKeyPress(.escape) { onClose(); return .handled }
                         .onKeyPress(phases: .down) { press in
                             guard press.modifiers == .command, let n = Self.digit(press.key), n >= 1 else { return .ignored }
-                            if items.indices.contains(n - 1) { onPick(items[n - 1]) }
+                            let list = current
+                            if list.indices.contains(n - 1) { onPick(list[n - 1]) }
                             return .handled
                         }
                         .onSubmit {
-                            if items.indices.contains(model.selection) { onPick(items[model.selection]) }
+                            let list = current
+                            if list.indices.contains(model.selection) { onPick(list[model.selection]) }
                         }
                 }
             } trailing: {
@@ -100,6 +102,10 @@ struct HistoryView: View {
         .onChange(of: model.query) { model.selection = 0 }
         .onChange(of: model.tab) { model.selection = 0 }
     }
+
+    /// The list as it is right now. Key handlers must not use the `items` captured at the last render:
+    /// while the panel was hidden new copies may have arrived, and Return would pick by a stale list.
+    private var current: [Clip] { model.items(in: store) }
 
     private static func digit(_ key: KeyEquivalent) -> Int? {
         Int(String(key.character))

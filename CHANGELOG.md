@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.5 (October 2026)
+
+- Fixed: Return and Cmd+1 to Cmd+9 in the history window could paste a different item than the highlighted one, if you had copied something new since the window was last open.
+
 ## 0.3.4 (October 2026)
 
 - Remote desktop: Windows App and similar clients only accept Ctrl and Shift from a real keyboard, so Clippo can't press Ctrl+V for you there. Now it puts the item on the clipboard, switches back to the session and shows "Press Ctrl+V". The paste queue works the same way: Cmd+V loads the next item, Ctrl+V pastes it. Shift+Cmd+C waits for your own Ctrl+C and splits what you copied into lines.
