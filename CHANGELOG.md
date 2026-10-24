@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.4 (October 2026)
+
+- Remote desktop: Windows App and similar clients only accept Ctrl and Shift from a real keyboard, so Clippo can't press Ctrl+V for you there. Now it puts the item on the clipboard, switches back to the session and shows "Press Ctrl+V". The paste queue works the same way: Cmd+V loads the next item, Ctrl+V pastes it. Shift+Cmd+C waits for your own Ctrl+C and splits what you copied into lines.
+
 ## 0.3.3 (October 2026)
 
 - Pasting into Windows App and other remote desktop clients works now. Clippo presses Ctrl the way a real keyboard does, so the remote side gets Ctrl+V instead of a plain V.

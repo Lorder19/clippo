@@ -284,6 +284,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             let before = NSPasteboard.general.changeCount
             // Over remote desktop the copied text has to travel back from the remote machine first.
             let remote = Paster.isRemoteDesktop(NSWorkspace.shared.frontmostApplication)
+            if remote {
+                // Can't press Ctrl+C for you there (see paste), so wait for your own copy instead.
+                Toast.show(L("Нажмите Ctrl+C, строки попадут в очередь"), seconds: 3)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 10) { [weak self] in
+                    if token == self?.splitToken, self?.awaitingSplit == true { self?.awaitingSplit = false }
+                }
+                return
+            }
             Paster.sendCopy()
             // Slow apps sometimes drop the first one; try once more if nothing reached the pasteboard.
             DispatchQueue.main.asyncAfter(deadline: .now() + (remote ? 1.2 : 0.4)) { [weak self] in
@@ -315,15 +323,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     // MARK: Paste
 
     private func pasteNextFromQueue() {
+        let position = queue.cursor + 1, total = queue.items.count
         guard let text = queue.popNext() else { return }
-        paste(text)
+        paste(text, remoteNote: String(format: L("Строка %d из %d в буфере. Нажмите Ctrl+V"), min(position, total), total))
     }
 
-    private func paste(_ text: String) {
-        paste { Paster.write(text) }
+    private func paste(_ text: String, remoteNote: String? = nil) {
+        paste(remoteNote: remoteNote) { Paster.write(text) }
     }
 
-    private func paste(writing write: () -> Void) {
+    private func paste(remoteNote: String? = nil, writing write: () -> Void) {
         write()
         monitor.ignoreCurrentChange()
         guard Paster.ensureAccessibility(prompt: false) else {
@@ -338,6 +347,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         // Hand focus back to where the user was and wait until it's really frontmost.
         let front = NSWorkspace.shared.frontmostApplication
         let target = (front != nil && front != .current) ? front : targetApp
+        // Remote desktop clients ignore modifier keys that don't come from a real keyboard, so Clippo can't
+        // press Ctrl+V there. Put the text on the clipboard, go back to the session and ask for Ctrl+V.
+        if Paster.isRemoteDesktop(target) {
+            if NSApp.isActive { NSApp.deactivate(); target?.activate() }
+            Toast.show(remoteNote ?? L("Скопировано. Нажмите Ctrl+V"))
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+                self?.pasteNextKey.setEnabled(self?.queue.hasPending ?? false)
+            }
+            return
+        }
         if NSApp.isActive {
             NSApp.deactivate()
             target?.activate()

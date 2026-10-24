@@ -122,3 +122,6 @@
 "Не получилось обновить" = "Couldn't update";
 "Можно скачать новую версию вручную со страницы релиза." = "You can download the new version from the release page instead.";
 "Открыть страницу" = "Open Page";
+"Скопировано. Нажмите Ctrl+V" = "Copied. Press Ctrl+V";
+"Строка %d из %d в буфере. Нажмите Ctrl+V" = "Item %d of %d copied. Press Ctrl+V";
+"Нажмите Ctrl+C, строки попадут в очередь" = "Press Ctrl+C, the lines go into the queue";
