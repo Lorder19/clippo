@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.6 (October 2026)
+
+- Only one Clippo runs at a time. A second copy, for example one started from Downloads while the installed one is running, now steps aside instead of recording every copy twice.
+- The "Encrypt history" setting is read reliably even when it was set from Terminal.
+
 ## 0.3.5 (October 2026)
 
 - Fixed: Return and Cmd+1 to Cmd+9 in the history window could paste a different item than the highlighted one, if you had copied something new since the window was last open.

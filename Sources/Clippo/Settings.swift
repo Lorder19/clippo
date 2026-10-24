@@ -99,7 +99,7 @@ final class Settings: ObservableObject {
 
     private init() {
         let d = UserDefaults.standard
-        encryptStore = d.object(forKey: "encryptStore") as? Bool ?? true
+        encryptStore = d.object(forKey: "encryptStore") == nil ? true : d.bool(forKey: "encryptStore")
         clearOnQuit = d.bool(forKey: "clearOnQuit")
         let saved = (d.data(forKey: "shortcuts")).flatMap { try? JSONDecoder().decode([ShortcutAction: Shortcut].self, from: $0) } ?? [:]
         shortcuts = Dictionary(uniqueKeysWithValues: ShortcutAction.allCases.map { ($0, saved[$0] ?? $0.defaultShortcut) })

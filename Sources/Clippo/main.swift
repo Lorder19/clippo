@@ -20,6 +20,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         if Demo.isOn { startDemo(); return }
+        if Self.anotherInstanceKeepsRunning() { NSApp.terminate(nil); return }
         if AppMover.offerMoveIfNeeded() { return }
         buildPanels()
 
@@ -48,6 +49,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     private var keyMonitor: Any?
+
+    /// Two copies would both record every copy and fight over the same files. An update or a move to
+    /// /Applications starts the new copy while the old one is still quitting, so give it a moment first.
+    private static func anotherInstanceKeepsRunning() -> Bool {
+        let me = NSRunningApplication.current
+        func others() -> [NSRunningApplication] {
+            NSRunningApplication.runningApplications(withBundleIdentifier: Bundle.main.bundleIdentifier ?? "")
+                .filter { $0 != me && !$0.isTerminated }
+        }
+        for _ in 0..<30 where !others().isEmpty { usleep(100_000) }
+        guard let other = others().first else { return false }
+        other.activate()
+        return true
+    }
 
     private func startDemo() {
         buildPanels()
